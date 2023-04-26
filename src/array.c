@@ -1,216 +1,310 @@
 #include <array.h>
 
-#include <string.h>
-
 ////////////////////////////////////////////////////////////////////////////////
-int consarray(struct array *array, size_t element_size)
+Array *_(cons)(size_t element_size)
 {
-  void *content = malloc(element_size);
-  int   success = 0;
+  void *base = malloc(element_size);
 
-  if (content) {
-    array->content      = content;
-    array->element_size = element_size;
-    array->size         = 0;
-    array->capacity     = 1;
-    success = 1;
-  }
+  if (base) {
+    _this->base           = base;
+    _this->element_size   = element_size;
+    _this->size           = 0;
+    _this->capacity       = 1;
+    _this->objects_inside = 0;
+  } else _this = NULL;
 
-  return success;
+  return _this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void freearray(struct array *array)
+void _(free)()
 {
-  if (array->content) free(array->content);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-Array *newArray(size_t elementSize)
-{
-  Array *array = malloc(sizeof(Array));
-
-  if (array && !consarray(array, elementSize)) {
-    free(array);
-    array = NULL;
-  }
-
-  return array;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void deleteArray(Array **array)
-{
-  if (*array) {
-    freearray(*array);
-    free(*array);
-    *array = NULL;
+  if (_this) {
+    if (_this->objects_inside) {
+      // remove all objects
+      while (_this->size) Array_popo(_this);
+    }
+    free(_this->base);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int resize(Array *array, int new_size)
+Array *_(fill)(...)
+{
+  void    *arg;
+  va_list  args;
+
+  va_start(args, _this);
+  while (arg = va_arg(args, void*)) {
+    Array_push(_this, arg);
+  }
+  va_end(args);
+
+  return _this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+Array *_(fillo)(...)
+{
+  void    *arg;
+  va_list  args;
+
+  va_start(args, _this);
+  while (arg = va_arg(args, void*)) {
+    Array_pusho(_this, arg);
+  }
+  va_end(args);
+
+  return _this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int _(recap)(int new_cap)
 {
   int success = 0;
-  if (array->size <= new_size) {
-    void *tmp = realloc(array->content, new_size * array->element_size);
+  if (_this->size > new_cap) {
+    Array_delrange(_this, new_cap, _this->size - new_cap);
+  }
+  if (_this->size <= new_cap) {
+    void *tmp = realloc(_this->base, new_cap * _this->element_size);
     if (tmp != NULL) {
-      array->content  = tmp;
-      array->capacity = new_size;
+      _this->base     = tmp;
+      _this->capacity = new_cap;
       success = 1;
     }
   }
+  
   return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void push(Array *array, void *data)
+int _(resize)(int new_size)
 {
-  if (array->size >= array->capacity) {
-    void *prevloc = NULL;
-    if ((char*)data >= (char*)array->content && 
-        (char*)data <  (char*)array->content + (array->element_size * array->size))
-    { // array is copying itself, update pointer
-      prevloc = array->content;
+  int success = Array_recap(_this, new_size ? new_size << 1 : 1);
+
+  if (success) {
+    if (new_size < _this->size && _this->objects_inside) {
+      delrange(_this, new_size, _this->size - new_size);
     }
-    if (!resize(array, array->capacity * 2)) return;
-    if (prevloc) {
-      data = (char*)data + ((long)array->content - (long)prevloc);
-    }
+    _this->size = new_size;
   }
-  memcpy((char*)array->content + (array->element_size * array->size++),
-	       (char*)data,
-	       array->element_size);
+  
+  return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void pushobj(Array *array, void *data)
+void _(push)(void *data)
 {
-  push(array, data);
+  if (_this->size >= _this->capacity) {
+    void *prevloc = NULL;
+    if ((char*)data >= (char*)_this->base && 
+        (char*)data <  (char*)_this->base + (_this->element_size * _this->size))
+    { // array is copying itself, update pointer
+      prevloc = _this->base;
+    }
+    if (!Array_recap(_this, _this->capacity << 1)) return;
+    if (prevloc) {
+      data = (char*)data + ((long)_this->base - (long)prevloc);
+    }
+  }
+  memcpy((char*)_this->base + (_this->element_size * _this->size++),
+	       (char*)data,
+	       _this->element_size);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(pusho)(void *data)
+{
+  Array_push(_this, data);
   free(data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *pop(Array *array)
+void *_(pop)()
 {
   void *index = NULL;
-  if (array->size > 0) {
-    int size     = array->size--;
-    int capacity = array->capacity;
-    index = (char*)array->content + (array->size * array->element_size);
-    if (size > 1 && size < capacity / 4) {
-      resize(array, capacity / 2);
+  if (_this->size > 0) {
+    int size     = _this->size--;
+    int capacity = _this->capacity;
+    index = (char*)_this->base + (_this->size * _this->element_size);
+    if (size > 1 && size < capacity >> 2) {
+      Array_recap(_this, capacity >> 1);
     }
   }
   return index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int popobj(Array *array, void *freefunc)
+void _(popo)()
 {
-  void *index = pop(array);
-  if (index != NULL) {
-    ((void(*)(void*))freefunc)(index);
-    return 1;
+  Array_delel(_this, _this->size - 1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(popp)()
+{
+  return *(void**)Array_pop(_this);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(at)(int index)
+{
+  char *address = NULL;
+
+  if (index < 0) index += _this->size;
+  if (index >= 0 && index < _this->size) {
+    address = (char*)_this->base + (index * _this->element_size);
   }
-  return 0;
+
+  return address;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *at(Array *array, int index)
+void *_(atp)(int index)
 {
-  if (index >= 0 && index < array->size) {
-    return (char*)array->content + (index * array->element_size);
+  char *address = NULL;
+
+  if (index < 0) index += _this->size;
+  if (index >= 0 && index < _this->size) {
+    address = ((void**)_this->base)[index];
   }
-  return NULL;
+
+  return address;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *last(Array *array)
+void _(delel)(int index)
 {
-  if (array->size) return (char*)array->content + ((array->size - 1) * array->element_size);
-  return NULL;
+  Array_delrange(_this, index, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *rem(Array *array, int index)
+void _(delrange)(int start, int range)
+{
+  if (start < 0) start += _this->size;
+  if (start >= 0 && start + range < _this->size) {
+    if (_this->objects_inside) {
+      for (int index = start; index < range; index++) {
+        void  *elem     = ((char*)_this->base + (index * _this->element_size));
+        void **typename = (void**)((char*)elem + _this->element_size - sizeof(char*));
+
+        _v_call("free", *typename, NULL);
+      }
+    }
+    memcpy((char*)_this->base      + (start       * _this->element_size),
+            (char*)_this->base      + ((start + range) * _this->element_size),
+            (_this->size -= (start + range)) * _this->element_size);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(rem)(int index)
 {
   void *rem = NULL;
-  if (index >= 0 && index < array->size) {
-    void *tmp = malloc(array->element_size);
+
+  if (index < 0) index += _this->size;
+  if (index >= 0 && index < _this->size) {
+    void *tmp = malloc(_this->element_size);
     if (tmp) {
-      memcpy(tmp, (char*)array->content + (index * array->element_size), array->element_size);
-      memcpy((char*)array->content + (index       * array->element_size),
-             (char*)array->content + ((index + 1) * array->element_size),
-             (array->size - index) * array->element_size);
-      rem = (char*)array->content + (--array->size * array->element_size);
-      memcpy(rem, tmp, array->element_size);
+      memcpy(tmp, (char*)_this->base + (index * _this->element_size), _this->element_size);
+      memcpy((char*)_this->base      + (index       * _this->element_size),
+             (char*)_this->base      + ((index + 1) * _this->element_size),
+             (_this->size - index) * _this->element_size);
+      rem = (char*)_this->base + (--_this->size * _this->element_size);
+      memcpy(rem, tmp, _this->element_size);
       free(tmp);
     }
   }
+
   return rem;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void set(Array *array, int index, void *value)
+void *_(remp)(int index)
 {
-  if (index >= 0 && index < array->size) {
-    memcpy((char*)array->content + (index * array->element_size), value, array->element_size);
+  return *(void**)Array_rem(_this, index);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(last)()
+{
+  void *l = NULL;
+
+  if (_this->size) l = (char*)_this->base + ((_this->size - 1) * _this->element_size);
+  
+  return l;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(lastp)()
+{
+  void *l = NULL;
+
+  if (_this->size) l = ((void**)_this->base)[_this->size - 1];
+
+  return l;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(set)(int index, void *value)
+{
+  if (index >= 0 && index < _this->size) {
+    memcpy((char*)_this->base + (index * _this->element_size), value, _this->element_size);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void clear(Array *array)
+void _(clear)()
 {
-  array->size = 0;
+  Array_delrange(_this, 0, _this->size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void combine(Array* a, Array *b)
+void _(combine)(Array *other)
 {
-  void *elem;
-  if (a->element_size == b->element_size) {
-    while ((elem = pop(b))) {
-      push(a, b);
-    }
+  if (_this->element_size == other->element_size) {
+    void *elem;
+
+    while ((elem = Array_pop(other))) Array_push(_this, elem);
   }
-  deleteArray(&b);
+
+  DELETE (other);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void insert(Array *array, int index, void *data)
+void _(insert)(int index, void *data)
 {
-  if (array->size >= array->capacity) {
+  if (_this->size >= _this->capacity) {
     void *prevloc = NULL;
-    if ((char*)data >= (char*)array->content && 
-        (char*)data <  (char*)array->content + (array->element_size * array->size))
+    if ((char*)data >= (char*)_this->base && 
+        (char*)data <  (char*)_this->base + (_this->element_size * _this->size))
     { // array is copying itself, update pointer
-      prevloc = array->content;
+      prevloc = _this->base;
     }
-    if (!resize(array, array->capacity * 2)) return;
+    if (!Array_recap(_this, _this->capacity << 1)) return;
     if (prevloc) {
-      data = (char*)data + ((long)array->content - (long)prevloc);
+      data = (char*)data + ((long)_this->base - (long)prevloc);
     }
   }
   // Array is copying the moving part
-  if ((char*)data >= (char*)array->content + index       * array->element_size &&
-      (char*)data <  (char*)array->content + array->size * array->element_size) {
-    data = (char*)data + array->element_size;
+  if ((char*)data >= (char*)_this->base + index       * _this->element_size &&
+      (char*)data <  (char*)_this->base + _this->size * _this->element_size) {
+    data = (char*)data + _this->element_size;
   }
-  memcpy((char*)array->content + (index + 1) * array->element_size, 
-         (char*)array->content +  index      * array->element_size,
-         (array->size++        -  index    ) * array->element_size);
-  memcpy((char*)array->content +  index      * array->element_size, 
-         (char*)data,                          array->element_size);
+  memcpy((char*)_this->base + (index + 1) * _this->element_size, 
+         (char*)_this->base +  index      * _this->element_size,
+         (_this->size++     -  index    ) * _this->element_size);
+  memcpy((char*)_this->base +  index      * _this->element_size, 
+         (char*)data,                       _this->element_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *in(Array *array, void *data)
+void *_(in)(void *data)
 {
   void *contains = NULL;
-  for (int i = 0; i < array->size; i++) {
-    void *tmp = (char*)array->content + i * array->element_size;
-    if(!memcmp((char*)data, tmp, array->element_size)) {
+  for (int i = 0; i < _this->size; i++) {
+    void *tmp = (char*)_this->base + i * _this->element_size;
+    if(!memcmp((char*)data, tmp, _this->element_size)) {
       contains = tmp;
       break;
     }
@@ -219,11 +313,22 @@ void *in(Array *array, void *data)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int indexof(Array *array, void *data)
+void *_(inp)(void *data)
+{
+  void **ptr = Array_in(_this, data);
+
+  if (ptr) return *ptr;
+  
+  return NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int _(indexof)(void *data)
 {
   int index = -1;
-  for (int i = 0; i < array->size; i++) {
-    if(!memcmp((char*)data, (char*)array->content + i * array->element_size, array->element_size)) {
+
+  for (int i = 0; i < _this->size; i++) {
+    if(!memcmp((char*)data, (char*)_this->base + i * _this->element_size, _this->element_size)) {
       index = i;
       break;
     }
