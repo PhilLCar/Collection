@@ -10,7 +10,6 @@
 #include <diagnostic.h>
 #include <oop.h>
 
-// Redimensionable array
 #define TYPENAME Array
 
 OBJECT (size_t) INHERIT (void*)
@@ -93,4 +92,5 @@ void  *_(inp)(void *element) ALIAS (inp);
 // RETURNS the index of the <element> if present, -1 otherwise
 int    _(indexof)(void *element) ALIAS (indexof);
 
+#undef TYPENAME
 #endif

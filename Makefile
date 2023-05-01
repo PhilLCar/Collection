@@ -1,11 +1,13 @@
 # The following variables need to be set prior to including library.mk
 
 # Library name
-NAME = array
+NAME = collection
 
 # Versioning
 MAJOR = 0
 MINOR = 0
+REVISION = 0
+BUILD    = 0
 
 # If the project is separated among multiple sub-folders
 PROJECT_ROOTS =
@@ -17,4 +19,4 @@ ADD_LIBRARIES =
 ADD_CFLAGS = 
 
 # Include the template
-include library.mk
+include $(CUT_HOME)CUT/res/library.mk

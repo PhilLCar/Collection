@@ -1,17 +1,24 @@
 #include <array.h>
 
+#define TYPENAME Array
+
 ////////////////////////////////////////////////////////////////////////////////
 Array *_(cons)(size_t element_size)
 {
-  void *base = malloc(element_size);
+  if (_this) {
+    void *base = malloc(element_size);
 
-  if (base) {
-    _this->base           = base;
-    _this->element_size   = element_size;
-    _this->size           = 0;
-    _this->capacity       = 1;
-    _this->objects_inside = 0;
-  } else _this = NULL;
+    if (base) {
+      _this->base           = base;
+      _this->element_size   = element_size;
+      _this->size           = 0;
+      _this->capacity       = 1;
+      _this->objects_inside = 0;
+    } else {
+      free(_this);
+      _this = NULL;
+    }
+  }
 
   return _this;
 }
@@ -117,6 +124,7 @@ void _(pusho)(void *data)
 {
   Array_push(_this, data);
   free(data);
+  _this->objects_inside = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

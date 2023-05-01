@@ -3,8 +3,8 @@ obj
 lib
 bin
 
-# CUT
-.CUT
+# Dev
+.vscode
 
 # Prerequisites
 *.d
