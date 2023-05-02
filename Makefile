@@ -4,10 +4,7 @@
 NAME = collection
 
 # Versioning
-MAJOR = 0
-MINOR = 0
-REVISION = 0
-BUILD    = 0
+include ver/version.mk
 
 # If the project is separated among multiple sub-folders
 PROJECT_ROOTS =

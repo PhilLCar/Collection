@@ -6,9 +6,12 @@
 #include <stdlib.h>
 
 // CUT
-#include <pair.h>
-#include <array.h>
+#include <diagnostic.h>
 #include <oop.h>
+#include <str.h>
+
+#include "array.h"
+#include "pair.h"
 
 #define TYPENAME Map
 
@@ -17,11 +20,9 @@ OBJECT (size_t, size_t) INHERIT (Array)
   size_t size_second;
 END_OBJECT;
 
-void *_(atkey)(void *key) ALIAS (atkey);
-
-void *_(vatkey)(void *key) ALIAS (vatkey);
-
-void *_(setkey)(void *key) ALIAS (setkey);
+void *_(atkey)(void *key);
+void *_(vatkey)(void *key);
+void *_(setkey)(void *key);
 
 #undef TYPENAME
 #endif

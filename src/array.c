@@ -42,7 +42,7 @@ Array *_(fill)(...)
   va_list  args;
 
   va_start(args, _this);
-  while (arg = va_arg(args, void*)) {
+  while ((arg = va_arg(args, void*))) {
     Array_push(_this, arg);
   }
   va_end(args);
@@ -57,7 +57,7 @@ Array *_(fillo)(...)
   va_list  args;
 
   va_start(args, _this);
-  while (arg = va_arg(args, void*)) {
+  while ((arg = va_arg(args, void*))) {
     Array_pusho(_this, arg);
   }
   va_end(args);
@@ -91,7 +91,7 @@ int _(resize)(int new_size)
 
   if (success) {
     if (new_size < _this->size && _this->objects_inside) {
-      delrange(_this, new_size, _this->size - new_size);
+      Array_delrange(_this, new_size, _this->size - new_size);
     }
     _this->size = new_size;
   }
