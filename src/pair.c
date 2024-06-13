@@ -1,0 +1,99 @@
+#include <pair.h>
+
+#define TYPENAME Pair
+
+////////////////////////////////////////////////////////////////////////////////
+TYPENAME *_(cons)(size_t first_size, size_t second_size)
+{
+  if (_this) {
+    _this->first_size  = first_size;
+    _this->first       = malloc(first_size + sizeof(const char*));
+    _this->second_size = second_size;
+    _this->second      = malloc(second_size + sizeof(const char*));
+
+    if (!_this->first || !_this->second)
+    {
+      if (_this->first)  free(_this->first);
+      if (_this->second) free(_this->second);
+
+      free(_this);
+      _this = NULL;
+    }
+  }
+
+  return _this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(free)()
+{
+  if (_this) {
+    Pair_frem(_this);
+    Pair_srem(_this);
+
+    free(_this->first);
+    free(_this->second);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+const char* _(fobject)()
+{
+  return (char*)_this->first + _this->first_size - sizeof(const char *);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+const char* _(sobject)()
+{
+  return (char*)_this->second + _this->second_size - sizeof(const char*);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(frem)()
+{
+  VirtualFunction free_first  = _virtual("free", Pair_fobject(_this));
+
+  if (free_first != NULL) {
+    free_first(_this->first);
+  }
+
+  memset(_this->first, 0, _this->first_size);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(srem)()
+{
+  VirtualFunction free_second = _virtual("free", Pair_sobject(_this));
+
+  if (free_second != NULL) {
+    free_second(_this->second);
+  }
+
+  memset(_this->second, 0, _this->second_size);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(fset)(void *element)
+{
+  Pair_srem(_this);
+  memcpy(_this->first, element, _this->first_size);
+  free(element);
+
+  return _this->first;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(sset)(void *element)
+{
+  Pair_srem(_this);
+  memcpy(_this->second, element, _this->second_size);
+  free(element);
+  
+  return _this->second;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+size_t _(size)()
+{
+  return _this->first_size + _this->second_size;
+}

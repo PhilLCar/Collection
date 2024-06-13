@@ -10,19 +10,23 @@
 #include <oop.h>
 #include <str.h>
 
-#include "array.h"
+#include "object_array.h"
 #include "pair.h"
 
 #define TYPENAME Map
 
-OBJECT (size_t, size_t) INHERIT (Array)
-  size_t size_first;
-  size_t size_second;
+typedef int (*Comparer)(void*, void*);
+
+OBJECT (size_t key_size, size_t value_size, Comparer comparer) INHERIT (ObjectArray)
+  size_t key_size;
+  size_t value_size;  
+  Comparer comparer;
 END_OBJECT;
 
 void *_(atkey)(void *key);
 void *_(vatkey)(void *key);
-void *_(setkey)(void *key);
+void *_(setkey)(void *key, void *value);
+void  _(remkey)(void *key);
 
 #undef TYPENAME
 #endif

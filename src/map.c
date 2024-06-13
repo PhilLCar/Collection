@@ -3,11 +3,13 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(cons)(size_t size_first, size_t size_second) {
+TYPENAME *_(cons)(size_t key_size, size_t value_size, Comparer comparer) {
   if (_this) {
-    Array_cons((Array*)_this, sizeof(PAIR_PTR(size_first, size_second)));
-    _this->size_first  = size_first;
-    _this->size_second = size_second;
+    ObjectArray_cons(&_this->base, sizeof(Pair) + sizeof(const char *));
+
+    _this->key_size   = key_size;
+    _this->value_size = value_size;
+    _this->comparer   = comparer;
   }
 
   return _this;
@@ -15,15 +17,23 @@ Map *_(cons)(size_t size_first, size_t size_second) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(free)() {
-  Array_free((Array*)_this);
+  if (_this) {
+    ObjectArray_free(&_this->base);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(atkey)(void *key) {
-  for (int i = 0; i < _this->base.size; i++) {
-    void *index = (char*)_this->base.base + i * _this->base.element_size;
-    
-    if (!memcmp(key, index, _this->size_first)) return index;
+  Array *array = &_this->base.base;
+  Pair  *pairs = (Pair*)array->base;
+
+  for (int i = 0; i < array->size; i++) {
+    Pair *pair = &pairs[i];
+
+    if (_this->comparer(key, pair->first))
+    {
+      return pair;
+    }
   }
 
   return NULL;
@@ -31,21 +41,34 @@ void *_(atkey)(void *key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(vatkey)(void *key) {
-  return (void*)((char*)Map_atkey(_this, key) + _this->size_first);
+  return ((Pair*)Map_atkey(_this, key))->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(setkey)(void *key) {
-  void *place = Map_vatkey(_this, key);
+void *_(setkey)(void *key, void *value) {
+  Pair *current = Map_atkey(_this, key);
 
-  if (!place) {
-    PAIR_PTR(_this->size_first, _this->size_second) tmp;
+  if (current) {
+    Pair_sset(current, value);
+  } else {
+    Pair *pair = NEW (Pair) (_this->key_size, _this->value_size);
 
-    memcpy(&tmp.first,  key, _this->size_first);
-    memset(&tmp.second, 0,   _this->size_second);
-    Array_push((Array*)_this, &tmp);
-    place = Map_vatkey(_this, key);
+    Pair_fset(pair, key);
+    Pair_sset(pair, value);
+
+    ObjectArray_push(&_this->base, pair);
   }
 
-  return place;
+  return current;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(remkey)(void *key) {
+  Pair *pair  = Map_atkey(_this, key);
+  int   index = Array_indexof(&_this->base.base, pair);
+
+  if (index >= 0)
+  {
+    ObjectArray_rem(&_this->base, index);
+  }
 }
