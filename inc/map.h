@@ -23,9 +23,9 @@ OBJECT (size_t key_size, size_t value_size, Comparer comparer) INHERIT (ObjectAr
   Comparer comparer;
 END_OBJECT;
 
-void *_(atkey)(void *key);
+Pair *_(atkey)(void *key);
 void *_(vatkey)(void *key);
-void *_(setkey)(void *key, void *value);
+Pair *_(setkey)(void *key, void *value);
 void  _(remkey)(void *key);
 
 #undef TYPENAME

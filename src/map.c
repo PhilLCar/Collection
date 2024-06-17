@@ -23,29 +23,31 @@ void _(free)() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(atkey)(void *key) {
+Pair *_(atkey)(void *key) {
   Array *array = &_this->base.base;
   Pair  *pairs = (Pair*)array->base;
+  Pair  *pair  = NULL;
 
   for (int i = 0; i < array->size; i++) {
-    Pair *pair = &pairs[i];
+    Pair *current = &pairs[i];
 
-    if (_this->comparer(key, pair->first))
+    if (_this->comparer(key, current->first))
     {
-      return pair;
+      pair = current;
+      break;
     }
   }
 
-  return NULL;
+  return pair;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(vatkey)(void *key) {
-  return ((Pair*)Map_atkey(_this, key))->second;
+  return Map_atkey(_this, key)->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(setkey)(void *key, void *value) {
+Pair *_(setkey)(void *key, void *value) {
   Pair *current = Map_atkey(_this, key);
 
   if (current) {
