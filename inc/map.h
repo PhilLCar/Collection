@@ -8,7 +8,6 @@
 // CUT
 #include <diagnostic.h>
 #include <oop.h>
-#include <str.h>
 
 #include "object_array.h"
 #include "pair.h"

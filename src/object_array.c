@@ -24,7 +24,7 @@ void _(free)()
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(object)(int index)
 {
-  return (char*)_this + ((index + 1) * _this->base.element_size) - sizeof(char*);
+  return *(const char**)((char*)_this + ((index + 1) * _this->base.element_size) - sizeof(char*));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

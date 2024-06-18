@@ -39,13 +39,13 @@ void _(free)()
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(fobject)()
 {
-  return (char*)_this->first + _this->first_size - sizeof(const char *);
+  return *(const char**)((char*)_this->first + _this->first_size - sizeof(const char *));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(sobject)()
 {
-  return (char*)_this->second + _this->second_size - sizeof(const char*);
+  return *(const char**)((char*)_this->second + _this->second_size - sizeof(const char*));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
