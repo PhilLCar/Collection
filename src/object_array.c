@@ -6,7 +6,11 @@
 TYPENAME *_(cons)(size_t element_size)
 {
   if (_this) {
-    if (!Array_cons(&_this->base, element_size + sizeof(const char *))) _this = NULL;
+    if (Array_cons(&_this->base, element_size + sizeof(const char *))) {
+      memset(_this->base.base, 0, _this->base.capacity * _this->base.element_size);
+    } else {
+      _this = NULL;
+    }
   }
 
   return _this;
@@ -24,7 +28,7 @@ void _(free)()
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(object)(int index)
 {
-  return *(const char**)((char*)_this + ((index + 1) * _this->base.element_size) - sizeof(char*));
+  return *(const char**)((char*)_this->base.base + ((index + 1) * _this->base.element_size) - sizeof(char*));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,10 +47,12 @@ TYPENAME *_(fill)(...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(push)(void *data)
+void *_(push)(void *data)
 {
   Array_push(&_this->base, data);
   free(data);
+
+  return Array_last(_this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,13 +78,13 @@ int _(remrange)(int start, int range)
     {
       VirtualFunction free_object = _virtual("free", ObjectArray_object(_this, i));
       
-      void *index = Array_at(&_this->base, i);
+      void *object = Array_at(&_this->base, i);
 
       if (free_object != NULL){
-        free_object(index);
+        free_object(object);
       }
 
-      memset(index, 0, _this->base.element_size);
+      memset(object, 0, _this->base.element_size);
     }
     
     // Then remove the range

@@ -11,13 +11,15 @@ TYPENAME *_(cons)(size_t first_size, size_t second_size)
     _this->second_size = second_size;
     _this->second      = malloc(second_size + sizeof(const char*));
 
-    if (!_this->first || !_this->second)
-    {
+    if (!_this->first || !_this->second) {
       if (_this->first)  free(_this->first);
       if (_this->second) free(_this->second);
 
       free(_this);
       _this = NULL;
+    } else {
+      memset(_this->first,  0, first_size  + sizeof(const char*));
+      memset(_this->second, 0, second_size + sizeof(const char*));
     }
   }
 
@@ -39,13 +41,13 @@ void _(free)()
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(fobject)()
 {
-  return *(const char**)((char*)_this->first + _this->first_size - sizeof(const char *));
+  return *(const char**)((char*)_this->first + _this->first_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(sobject)()
 {
-  return *(const char**)((char*)_this->second + _this->second_size - sizeof(const char*));
+  return *(const char**)((char*)_this->second + _this->second_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +77,8 @@ void _(srem)()
 ////////////////////////////////////////////////////////////////////////////////
 void *_(fset)(void *element)
 {
-  Pair_srem(_this);
-  memcpy(_this->first, element, _this->first_size);
+  Pair_frem(_this);
+  memcpy(_this->first, element, _this->first_size + sizeof(char*));
   free(element);
 
   return _this->first;
@@ -86,14 +88,8 @@ void *_(fset)(void *element)
 void *_(sset)(void *element)
 {
   Pair_srem(_this);
-  memcpy(_this->second, element, _this->second_size);
+  memcpy(_this->second, element, _this->second_size + sizeof(char*));
   free(element);
   
   return _this->second;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-size_t _(size)()
-{
-  return _this->first_size + _this->second_size;
 }

@@ -177,9 +177,9 @@ int _(remrange)(int start, int range)
       range = _this->size - start;
     }
 
-    memcpy((char*)_this->base      +  (start           * _this->element_size),
-           (char*)_this->base      + ((start + range)  * _this->element_size),
-                 (_this->size      -= (start + range)) * _this->element_size);
+    memcpy((char*)_this->base +  (start           * _this->element_size),
+           (char*)_this->base + ((start + range)  * _this->element_size),
+                 (_this->size -  (start + range)) * _this->element_size);
 
     _this->size -= (removed = range);
   }

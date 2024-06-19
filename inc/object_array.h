@@ -24,7 +24,7 @@ const char* _(object)(int index);
 TYPENAME *_(fill)(...);
 
 // Pushes a new element onto the array
-void   _(push)(void *element);
+void  *_(push)(void *element);
 
 // Pops the last element of the array and frees it
 void   _(pop)();

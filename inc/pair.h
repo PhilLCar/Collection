@@ -22,7 +22,5 @@ void _(srem)();
 void *_(fset)(void *element);
 void *_(sset)(void *element);
 
-size_t _(size)();
-
 #undef TYPENAME
 #endif
