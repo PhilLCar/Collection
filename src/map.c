@@ -30,7 +30,7 @@ Pair *_(atkey)(void *key) {
   for (int i = 0; i < array->size; i++) {
     Pair *current = (Pair*)((char*)array->base + i * array->element_size);
 
-    if (_this->comparer(key, current->first))
+    if (_this->comparer(current->first, key))
     {
       pair = current;
       break;
