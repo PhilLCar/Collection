@@ -52,7 +52,7 @@ void *_(push)(void *data)
   Array_push(&_this->base, data);
   free(data);
 
-  return Array_last(_this);
+  return Array_last(&_this->base);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

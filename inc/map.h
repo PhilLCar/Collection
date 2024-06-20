@@ -14,7 +14,7 @@
 
 #define TYPENAME Map
 
-typedef int (*Comparer)(void*, void*);
+typedef int (*Comparer)(const void*, const void*);
 
 OBJECT (size_t key_size, size_t value_size, Comparer comparer) INHERIT (ObjectArray)
   size_t key_size;
@@ -22,10 +22,10 @@ OBJECT (size_t key_size, size_t value_size, Comparer comparer) INHERIT (ObjectAr
   Comparer comparer;
 END_OBJECT;
 
-Pair *_(atkey)(void *key);
-void *_(vatkey)(void *key);
+Pair *_(atkey)(const void *key);
+void *_(vatkey)(const void *key);
 Pair *_(setkey)(void *key, void *value);
-void  _(remkey)(void *key);
+void  _(remkey)(const void *key);
 
 #undef TYPENAME
 #endif

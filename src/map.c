@@ -23,7 +23,7 @@ void _(free)() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(atkey)(void *key) {
+Pair *_(atkey)(const void *key) {
   Array *array = &_this->base.base;
   Pair  *pair  = NULL;
 
@@ -41,7 +41,7 @@ Pair *_(atkey)(void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(vatkey)(void *key) {
+void *_(vatkey)(const void *key) {
   return Map_atkey(_this, key)->second;
 }
 
@@ -64,7 +64,7 @@ Pair *_(setkey)(void *key, void *value) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(remkey)(void *key) {
+void _(remkey)(const void *key) {
   Pair *pair  = Map_atkey(_this, key);
   int   index = Array_indexof(&_this->base.base, pair);
 
