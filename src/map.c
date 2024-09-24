@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 TYPENAME *_(cons)(size_t key_size, size_t value_size, Comparer comparer) {
   if (_this) {
-    ObjectArray_cons(&_this->base, sizeof(Pair));
+    ObjectArray_cons(BASE(0), sizeof(Pair));
 
     _this->key_size   = key_size;
     _this->value_size = value_size;
@@ -18,17 +18,20 @@ TYPENAME *_(cons)(size_t key_size, size_t value_size, Comparer comparer) {
 ////////////////////////////////////////////////////////////////////////////////
 void _(free)() {
   if (_this) {
-    ObjectArray_free(&_this->base);
+    ObjectArray_free(BASE(0));
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(atkey)(const void *key) {
-  Array *array = &_this->base.base;
   Pair  *pair  = NULL;
 
-  for (int i = 0; i < array->size; i++) {
-    Pair *current = (Pair*)((char*)array->base + i * array->element_size);
+  // Base 0: as ObjectArray
+  // Base 1: as Array
+  // Base 2: as void*
+
+  for (int i = 0; i < BASE(1)->size; i++) {
+    Pair *current = (Pair*)((char*)BASE(2) + i * BASE(1)->element_size);
 
     if (_this->comparer(current->first, key))
     {
@@ -57,7 +60,7 @@ Pair *_(setkey)(void *key, void *value) {
     Pair_fset(pair, key);
     Pair_sset(pair, value);
 
-    current = ObjectArray_push(&_this->base, pair);
+    current = ObjectArray_push(BASE(0), pair);
   }
 
   return current;
@@ -66,10 +69,10 @@ Pair *_(setkey)(void *key, void *value) {
 ////////////////////////////////////////////////////////////////////////////////
 void _(remkey)(const void *key) {
   Pair *pair  = Map_atkey(_this, key);
-  int   index = Array_indexof(&_this->base.base, pair);
+  int   index = Array_indexof(BASE(1), pair);
 
   if (index >= 0)
   {
-    ObjectArray_rem(&_this->base, index);
+    ObjectArray_rem(BASE(0), index);
   }
 }

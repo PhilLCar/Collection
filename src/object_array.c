@@ -6,8 +6,8 @@
 TYPENAME *_(cons)(size_t element_size)
 {
   if (_this) {
-    if (Array_cons(&_this->base, element_size + sizeof(const char *))) {
-      memset(_this->base.base, 0, _this->base.capacity * _this->base.element_size);
+    if (Array_cons(BASE(0), element_size + sizeof(const char *))) {
+      memset(BASE(0)->base, 0, BASE(0)->capacity * BASE(0)->element_size);
     } else {
       _this = NULL;
     }
@@ -21,14 +21,14 @@ void _(free)()
 {
   if (_this) {
     ObjectArray_clear(_this);
-    Array_free(&_this->base);
+    Array_free(BASE(0));
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(object)(int index)
 {
-  return *(const char**)((char*)_this->base.base + ((index + 1) * _this->base.element_size) - sizeof(char*));
+  return *(const char**)((char*)BASE(0)->base + ((index + 1) * BASE(0)->element_size) - sizeof(char*));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,10 +49,10 @@ TYPENAME *_(fill)(...)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(push)(void *data)
 {
-  Array_push(&_this->base, data);
+  Array_push(BASE(0), data);
   free(data);
 
-  return Array_last(&_this->base);
+  return Array_last(BASE(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,11 +66,11 @@ int _(remrange)(int start, int range)
 {
   int removed = 0;
 
-  if (start < 0) start += _this->base.size;
+  if (start < 0) start += BASE(0)->size;
   if (start >= 0) {
-    if (start + range > _this->base.size)
+    if (start + range > BASE(0)->size)
     {
-      range = _this->base.size - start;
+      range = BASE(0)->size - start;
     }
 
     // delete the objects first
@@ -78,17 +78,17 @@ int _(remrange)(int start, int range)
     {
       VirtualFunction free_object = _virtual("free", ObjectArray_object(_this, i));
       
-      void *object = Array_at(&_this->base, i);
+      void *object = Array_at(BASE(0), i);
 
       if (free_object != NULL){
         free_object(object);
       }
 
-      memset(object, 0, _this->base.element_size);
+      memset(object, 0, BASE(0)->element_size);
     }
     
     // Then remove the range
-    removed = Array_remrange(&_this->base, start, range);
+    removed = Array_remrange(BASE(0), start, range);
   }
 
   return removed;
@@ -104,19 +104,19 @@ void _(rem)(int index)
 ////////////////////////////////////////////////////////////////////////////////
 void _(clear)()
 {
-  ObjectArray_remrange(_this, 0, _this->base.size);
+  ObjectArray_remrange(_this, 0, BASE(0)->size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(set)(int index, void *value)
 {
-  Array_set(&_this->base, index, value);
+  Array_set(BASE(0), index, value);
   free(value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(insert)(int index, void *data)
 {
-  Array_insert(&_this->base, index, data);
+  Array_insert(BASE(0), index, data);
   free(data);
 }
