@@ -6,7 +6,7 @@
 TYPENAME *_(cons)(size_t element_size)
 {
   if (_this) {
-    if (Array_cons(BASE(0), element_size + sizeof(const char *))) {
+    if (Array_cons(BASE(0), element_size + sizeof(const char*))) {
       memset(BASE(0)->base, 0, BASE(0)->capacity * BASE(0)->element_size);
     } else {
       _this = NULL;
@@ -28,7 +28,7 @@ void _(free)()
 ////////////////////////////////////////////////////////////////////////////////
 const char* _(object)(int index)
 {
-  return *(const char**)((char*)BASE(0)->base + ((index + 1) * BASE(0)->element_size) - sizeof(char*));
+  return *(const char**)((char*)BASE(0)->base + ((index + 1) * BASE(0)->element_size) - sizeof(const char*));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ int _(remrange)(int start, int range)
       
       void *object = Array_at(BASE(0), i);
 
-      if (free_object != NULL){
+      if (free_object != NULL) {
         free_object(object);
       }
 
