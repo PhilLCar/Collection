@@ -3,7 +3,7 @@
 #define TYPENAME Pair
 
 ////////////////////////////////////////////////////////////////////////////////
-TYPENAME *_(cons)(size_t first_size, size_t second_size)
+Pair *_(cons)(size_t first_size, size_t second_size)
 {
   if (_this) {
     _this->first_size  = first_size;

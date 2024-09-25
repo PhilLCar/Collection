@@ -3,7 +3,7 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-TYPENAME *_(cons)(size_t key_size, size_t value_size, Comparer comparer) {
+Map *_(cons)(size_t key_size, size_t value_size, Comparer comparer) {
   if (_this) {
     ObjectArray_cons(BASE(0), sizeof(Pair));
 

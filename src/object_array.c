@@ -3,7 +3,7 @@
 #define TYPENAME ObjectArray
 
 ////////////////////////////////////////////////////////////////////////////////
-TYPENAME *_(cons)(size_t element_size)
+ObjectArray *_(cons)(size_t element_size)
 {
   if (_this) {
     if (Array_cons(BASE(0), element_size + sizeof(const char*))) {
@@ -32,7 +32,7 @@ const char* _(object)(int index)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TYPENAME *_(fill)(...)
+ObjectArray *_(fill)(...)
 {
   void    *arg;
   va_list  args;

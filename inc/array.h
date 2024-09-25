@@ -19,7 +19,7 @@ OBJECT (size_t element_size) INHERIT (void*)
 END_OBJECT;
 
 // Fills the array with values
-TYPENAME *_(fill)(...);
+Array *_(fill)(...);
 
 // Sets the capacity of the array to the desired value. Truncates if necessary.
 int    _(recap)(int newCap);

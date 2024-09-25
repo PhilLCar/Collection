@@ -3,7 +3,7 @@
 #define TYPENAME Array
 
 ////////////////////////////////////////////////////////////////////////////////
-TYPENAME *_(cons)(size_t element_size)
+Array *_(cons)(size_t element_size)
 {
   if (_this) {
     void *base = calloc(element_size, 1);

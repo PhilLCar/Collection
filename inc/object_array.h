@@ -18,31 +18,31 @@ OBJECT (size_t element_size) INHERIT (Array)
 END_OBJECT;
 
 // Gets the contained objects' name
-const char* _(object)(int index);
+const char  *_(object)(int index);
 
 // Fills the array with values
-TYPENAME *_(fill)(...);
+ObjectArray *_(fill)(...);
 
 // Pushes a new element onto the array
-void  *_(push)(void *element);
+void        *_(push)(void *element);
 
 // Pops the last element of the array and frees it
-void   _(pop)();
+void         _(pop)();
 
 // Removes a range of elements starting at index start
-int    _(remrange)(int start, int range);
+int          _(remrange)(int start, int range);
 
 // Removes the element at index and returns a pointer to it
-void   _(rem)(int index);
+void         _(rem)(int index);
 
 // Clears the array
-void   _(clear)();
+void         _(clear)();
 
 // Sets the element at index
-void   _(set)(int index, void *element);
+void         _(set)(int index, void *element);
 
 // Inserts an element at index
-void   _(insert)(int index, void *element);
+void         _(insert)(int index, void *element);
 
 #undef TYPENAME
 #endif
