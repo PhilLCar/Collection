@@ -16,7 +16,7 @@ OBJECT (size_t element_size) INHERIT (void*)
   int     size;
   int     capacity;
   size_t  element_size;
-END_OBJECT;
+END(sizeof(void*));
 
 // Fills the array with values
 Array *_(fill)(...);
@@ -34,19 +34,22 @@ void   _(push)(void *element);
 void  *_(pop)();
 
 // Pops the last element and returns it
-void  *_(popp)();
+void  *_(popptr)();
+
+// Checks if the index is within the array
+int    _(index)(int *index);
 
 // Returns a pointer to the element at index
 void  *_(at)(int index);
 
 // Returns the element at index
-void  *_(atp)(int index);
+void  *_(atptr)(int index);
 
 // Returns a pointer to the last element of the array
 void  *_(last)();
 
 // Returns the last element from the array
-void  *_(lastp)();
+void  *_(lastptr)();
 
 // Removes a range of elements starting at index start
 int    _(remrange)(int start, int range);
@@ -55,7 +58,7 @@ int    _(remrange)(int start, int range);
 void  *_(rem)(int index);
 
 // Removes the element at index and returns it
-void  *_(remp)(int index);
+void  *_(remptr)(int index);
 
 // Clears the array
 void   _(clear)();
@@ -67,13 +70,13 @@ void   _(set)(int index, void *element);
 void   _(insert)(int index, void *element);
 
 // Combine two arrays and deletes the other
-void   _(combine)(Array *other);
+void   _(addrange)(Array *that);
 
 // Returns a pointer to the element targeted if present
 void  *_(in)(void *element);
 
 // Returns the element targeted if present
-void  *_(inp)(void *element);
+void  *_(inptr)(void *element);
 
 // Returns the index of the element targeted
 int    _(indexof)(void *element);

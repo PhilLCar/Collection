@@ -6,21 +6,21 @@
 
 #define TYPENAME Pair
 
-OBJECT (size_t first_size, size_t second_size)
-  size_t  first_size;
-  void   *first;
-  size_t  second_size;
-  void   *second;
-END_OBJECT;
+typedef struct _pair_member {
+  void *object;
+  Type  type;
+} PairMember;
 
-const char *_(fobject)();
-const char *_(sobject)();
+OBJECT (Type first, Type second)
+  PairMember first;
+  PairMember second;
+END(NATIVE_TYPE(void*), NATIVE_TYPE(void*));
 
-void _(frem)();
-void _(srem)();
+Pair *STATIC (from)(void *first, void *second);
+void *STATIC (set)(PairMember *member, void *element);
 
-void *_(fset)(void *element);
-void *_(sset)(void *element);
+void *_(setf)(void *element);
+void *_(sets)(void *element);
 
 #undef TYPENAME
 #endif

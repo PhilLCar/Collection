@@ -5,28 +5,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 Array *_(cons)(size_t element_size)
 {
-  if (_this) {
+  if (this) {
     void *base = calloc(element_size, 1);
 
     if (base) {
-      _this->base          = base;
-      _this->size          = 0;
-      _this->capacity      = 1;
-      _this->element_size  = element_size;
+      this->base          = base;
+      this->size          = 0;
+      this->capacity      = 1;
+      this->element_size  = element_size;
     } else {
-      free(_this);
-      _this = NULL;
+      tfree(this);
+      this = NULL;
     }
   }
 
-  return _this;
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(free)()
 {
-  if (_this) {
-    free(_this->base);
+  if (this) {
+    free(this->base);
   }
 }
 
@@ -36,13 +36,13 @@ Array *_(fill)(...)
   void    *arg;
   va_list  args;
 
-  va_start(args, _this);
+  va_start(args, this);
   while ((arg = va_arg(args, void*))) {
-    Array_push(_this, arg);
+    Array_push(this, arg);
   }
   va_end(args);
 
-  return _this;
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,16 +50,16 @@ int _(recap)(int new_cap)
 {
   int success = 0;
 
-  if (_this->size > new_cap) {
-    _this->size = new_cap;
+  if (this->size > new_cap) {
+    this->size = new_cap;
   }
 
-  if (_this->size <= new_cap) {
-    void *tmp = reallocarray(_this->base, _this->element_size, (size_t)new_cap);
+  if (this->capacity != new_cap) {
+    void *tmp = reallocarray(this->base, this->element_size, (size_t)new_cap);
 
     if (tmp != NULL) {
-      _this->base     = tmp;
-      _this->capacity = new_cap;
+      this->base     = tmp;
+      this->capacity = new_cap;
       success = 1;
     }
   }
@@ -70,15 +70,14 @@ int _(recap)(int new_cap)
 ////////////////////////////////////////////////////////////////////////////////
 int _(resize)(int new_size)
 {
-  int success = new_size <= _this->capacity;
-  
-  if (!success)
-  {
-    success = Array_recap(_this, new_size ? new_size << 1 : 1);
-  } 
+  int success = new_size <= this->capacity;
+
+  if (!success && (success = Array_recap(this, new_size ? new_size << 1 : 1))) {
+    memset((char*)this->base + (this->element_size * this->size), 0, new_size - this->size);
+  }
 
   if (success) {
-    _this->size = new_size;
+    this->size = new_size;
   }
   
   return success;
@@ -87,44 +86,56 @@ int _(resize)(int new_size)
 ////////////////////////////////////////////////////////////////////////////////
 void _(push)(void *data)
 {
-  if (_this->size >= _this->capacity) {
+  if (this->size >= this->capacity) {
     void *prevloc = NULL;
 
-    if ((char*)data >= (char*)_this->base && 
-        (char*)data <  (char*)_this->base + (_this->element_size * _this->size))
+    if ((char*)data >= (char*)this->base && 
+        (char*)data <  (char*)this->base + (this->element_size * this->size))
     { // array is copying itself, update pointer
-      prevloc = _this->base;
+      prevloc = this->base;
     }
-    if (!Array_recap(_this, _this->capacity << 1)) return;
+    if (!Array_recap(this, this->capacity << 1)) return;
     if (prevloc) {
-      data = (char*)data + ((long)_this->base - (long)prevloc);
+      data = (char*)data + ((long)this->base - (long)prevloc);
     }
   }
 
-  memcpy((char*)_this->base + (_this->element_size * _this->size++),
+  memcpy((char*)this->base + (this->element_size * this->size++),
 	       (char*)data,
-	       _this->element_size);
+	       this->element_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(pop)()
 {
   void *index = NULL;
-  if (_this->size > 0) {
-    int size     = _this->size--;
-    int capacity = _this->capacity;
-    index = (char*)_this->base + (_this->size * _this->element_size);
-    if (size > 1 && size < capacity >> 2) {
-      Array_recap(_this, capacity >> 1);
+
+  if (this->size > 0) {
+    int size     = this->size--;
+    int capacity = this->capacity;
+
+    index = (char*)this->base + (this->size * this->element_size);
+
+    if (size > 1 && size < (capacity >> 2)) {
+      Array_recap(this, capacity >> 1);
     }
   }
+
   return index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(popp)()
+void *_(popptr)()
 {
-  return *(void**)Array_pop(_this);
+  return *(void**)Array_pop(this);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int _(index)(int *index)
+{
+  if (*index < 0) *index += this->size;
+
+  return *index >= 0 && *index < this->size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,22 +143,20 @@ void *_(at)(int index)
 {
   char *address = NULL;
 
-  if (index < 0) index += _this->size;
-  if (index >= 0 && index < _this->size) {
-    address = (char*)_this->base + (index * _this->element_size);
+  if (Array_index(this, &index)) {
+    address = (char*)this->base + (index * this->element_size);
   }
 
   return address;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(atp)(int index)
+void *_(atptr)(int index)
 {
   char *address = NULL;
 
-  if (index < 0) index += _this->size;
-  if (index >= 0 && index < _this->size) {
-    address = ((void**)_this->base)[index];
+  if (Array_index(this, &index)) {
+    address = ((void**)this->base)[index];
   }
 
   return address;
@@ -156,13 +165,13 @@ void *_(atp)(int index)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(last)()
 {
-  return Array_at(_this, -1);
+  return Array_at(this, -1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(lastp)()
+void *_(lastptr)()
 {
-  return Array_atp(_this, -1);
+  return Array_atptr(this, -1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,18 +179,17 @@ int _(remrange)(int start, int range)
 {
   int removed = 0;
 
-  if (start < 0) start += _this->size;
-  if (start >= 0) {
-    if (start + range > _this->size)
+  if (Array_index(this, &start)) {
+    if (start + range > this->size)
     {
-      range = _this->size - start;
+      range = this->size - start;
     }
 
-    memcpy((char*)_this->base +  (start           * _this->element_size),
-           (char*)_this->base + ((start + range)  * _this->element_size),
-                 (_this->size -  (start + range)) * _this->element_size);
+    memcpy((char*)this->base +  (start           * this->element_size),
+           (char*)this->base + ((start + range)  * this->element_size),
+                 (this->size -  (start + range)) * this->element_size);
 
-    _this->size -= (removed = range);
+    this->size -= (removed = range);
   }
 
   return removed;
@@ -192,17 +200,16 @@ void *_(rem)(int index)
 {
   void *rem = NULL;
 
-  if (index < 0) index += _this->size;
-  if (index >= 0 && index < _this->size) {
-    void *tmp = malloc(_this->element_size);
+  if (Array_index(this, &index)) {
+    void *tmp = malloc(this->element_size);
 
     if (tmp) {
-      memcpy(tmp, (char*)_this->base + (index * _this->element_size), _this->element_size);
-      memcpy((char*)_this->base      + (index       * _this->element_size),
-             (char*)_this->base      + ((index + 1) * _this->element_size),
-             (_this->size - index) * _this->element_size);
-      rem = (char*)_this->base + (--_this->size * _this->element_size);
-      memcpy(rem, tmp, _this->element_size);
+      memcpy(tmp, (char*)this->base + (index * this->element_size), this->element_size);
+      memcpy((char*)this->base + (index       * this->element_size),
+             (char*)this->base + ((index + 1) * this->element_size),
+             (this->size - index) * this->element_size);
+      rem = (char*)this->base + (--this->size * this->element_size);
+      memcpy(rem, tmp, this->element_size);
       free(tmp);
     }
   }
@@ -211,84 +218,88 @@ void *_(rem)(int index)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(remp)(int index)
+void *_(remptr)(int index)
 {
-  return *(void**)Array_rem(_this, index);
+  return *(void**)Array_rem(this, index);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(clear)()
 {
-  _this->size = 0;
+  this->size = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(set)(int index, void *value)
 {
-  if (index < 0) index += _this->size;
-  if (index >= 0 && index < _this->size) {
-    memcpy((char*)_this->base + (index * _this->element_size), value, _this->element_size);
+  if (Array_index(this, &index)) {
+    memcpy((char*)this->base + (index * this->element_size), value, this->element_size);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(insert)(int index, void *data)
 {
-  if (_this->size >= _this->capacity) {
-    void *prevloc = NULL;
+  if (Array_index(this, &index)) {
+    if (this->size >= this->capacity) {
+      void *prevloc = NULL;
 
-    if ((char*)data >= (char*)_this->base && 
-        (char*)data <  (char*)_this->base + (_this->element_size * _this->size))
-    { // array is copying itself, update pointer
-      prevloc = _this->base;
+      if ((char*)data >= (char*)this->base && 
+          (char*)data <  (char*)this->base + (this->element_size * this->size))
+      { // array is copying itself, update pointer
+        prevloc = this->base;
+      }
+      if (!Array_recap(this, this->capacity << 1)) return;
+      if (prevloc) {
+        data = (char*)data + ((long)this->base - (long)prevloc);
+      }
     }
-    if (!Array_recap(_this, _this->capacity << 1)) return;
-    if (prevloc) {
-      data = (char*)data + ((long)_this->base - (long)prevloc);
+    // Array is copying the moving part
+    if ((char*)data >= (char*)this->base + index      * this->element_size &&
+        (char*)data <  (char*)this->base + this->size * this->element_size) {
+      data = (char*)data + this->element_size;
     }
+    memcpy((char*)this->base + (index + 1) * this->element_size, 
+           (char*)this->base +  index      * this->element_size,
+           (this->size++     -  index    ) * this->element_size);
+    memcpy((char*)this->base +  index      * this->element_size, 
+          (char*)data,                       this->element_size);
   }
-  // Array is copying the moving part
-  if ((char*)data >= (char*)_this->base + index       * _this->element_size &&
-      (char*)data <  (char*)_this->base + _this->size * _this->element_size) {
-    data = (char*)data + _this->element_size;
-  }
-  memcpy((char*)_this->base + (index + 1) * _this->element_size, 
-         (char*)_this->base +  index      * _this->element_size,
-         (_this->size++     -  index    ) * _this->element_size);
-  memcpy((char*)_this->base +  index      * _this->element_size, 
-         (char*)data,                       _this->element_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(combine)(Array *other)
+void _(addrange)(Array *that)
 {
-  if (_this->element_size == other->element_size) {
-    void *elem;
+  if (this->element_size == that->element_size) {
+    int size = this->size;
 
-    while ((elem = Array_pop(other))) Array_push(_this, elem);
+    Array_resize(this, this->size + that->size);
+    memcpy((char*)this->base + (size * this->element_size), that->base, that->size * that->element_size);
   }
 
-  DELETE (other);
+  DELETE (that);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(in)(void *data)
 {
   void *contains = NULL;
-  for (int i = 0; i < _this->size; i++) {
-    void *tmp = (char*)_this->base + i * _this->element_size;
-    if(!memcmp((char*)data, tmp, _this->element_size)) {
+  for (int i = 0; i < this->size; i++) {
+    void *tmp = (char*)this->base + i * this->element_size;
+
+    if(!memcmp((char*)data, tmp, this->element_size)) {
       contains = tmp;
       break;
     }
   }
+
   return contains;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(inp)(void *data)
+void *_(inptr)(void *data)
 {
-  void **ptr = Array_in(_this, data);
+  void **ptr = Array_in(this, data);
 
   if (ptr) return *ptr;
   
@@ -300,11 +311,12 @@ int _(indexof)(void *data)
 {
   int index = -1;
 
-  for (int i = 0; i < _this->size; i++) {
-    if(!memcmp((char*)data, (char*)_this->base + i * _this->element_size, _this->element_size)) {
+  for (int i = 0; i < this->size; i++) {
+    if(!memcmp((char*)data, (char*)this->base + i * this->element_size, this->element_size)) {
       index = i;
       break;
     }
   }
+
   return index;
 }

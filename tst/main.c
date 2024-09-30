@@ -1,13 +1,15 @@
 #include <stdio.h>
 
 #include <array.h>
-#include <object_array.h>
+#include <objectarray.h>
 #include <pair.h>
 #include <map.h>
 #include <diagnostic.h>
 
 void array_tests()
 {
+  printf("%s\n", "ARRAY TESTS:");
+
   CHECK_MEMORY
 
   Array *test = NEW (Array) (sizeof(int));
@@ -38,9 +40,11 @@ void array_tests()
 
 void object_array_tests()
 {
+  printf("%s\n", "OBJECT ARRAY TESTS:");
+
   CHECK_MEMORY
 
-  ObjectArray *test = NEW (ObjectArray) (sizeof(Array));
+  ObjectArray *test = NEW (ObjectArray) (OBJECT_TYPE(Array));
 
   CHECK_MEMORY
 
@@ -63,7 +67,7 @@ void object_array_tests()
     printf("Pop (b): %d\n", *(int*)Array_pop(tb));
   }
 
-  ObjectArray_rem(test, 1);
+  ObjectArray_rem(test, 1, 0);
 
   printf("Size: %d\n", test->base.size);
 
@@ -88,6 +92,8 @@ void pair_tests()
 {
   int x = 1, y = 2, z =3;
 
+  printf("%s\n", "PAIR TESTS:");
+
   CHECK_MEMORY
 
   Array *a = Array_fill(NEW (Array) (sizeof(int)), &x, &y, NULL), 
@@ -96,17 +102,17 @@ void pair_tests()
 
   CHECK_MEMORY
 
-  Pair *p = NEW (Pair) (sizeof(Array), sizeof(Array));
+  Pair *p = NEW (Pair) (OBJECT_TYPE(Array), OBJECT_TYPE(Array));
 
   CHECK_MEMORY
 
-  a = Pair_fset(p, a);
-  b = Pair_sset(p, b);
+  a = Pair_setf(p, a);
+  b = Pair_sets(p, b);
 
   printf("Pop (a): %d\n", *(int*)Array_pop(a));
   printf("Rem (b): %d\n", *(int*)Array_rem(b, 0));
 
-  c = Pair_fset(p, c);
+  c = Pair_setf(p, c);
 
   CHECK_MEMORY
 
@@ -127,6 +133,8 @@ void map_tests()
 {
   int w = 0, x = 1, y = 2, z =3;
 
+  printf("%s\n", "MAP TESTS:");
+
   CHECK_MEMORY
 
   Array *a = Array_fill(NEW (Array) (sizeof(int)), &w, &x, NULL), 
@@ -136,17 +144,17 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Map *m = NEW (Map) (sizeof(Array), sizeof(Array), (Comparer)array_comparer);
+  Map *m = NEW (Map) (OBJECT_TYPE(Array), OBJECT_TYPE(Array), (Comparer)array_comparer);
 
   CHECK_MEMORY
 
   Pair p1 = *Map_setkey(m, a, b);
-  a = p1.first;
-  b = p1.second;
+  a = p1.first.object;
+  b = p1.second.object;
 
   Pair p2 = *Map_setkey(m, c, d);
-  c = p2.first;
-  d = p2.second;
+  c = p2.first.object;
+  d = p2.second.object;
 
   CHECK_MEMORY
 

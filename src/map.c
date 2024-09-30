@@ -3,21 +3,20 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(cons)(size_t key_size, size_t value_size, Comparer comparer) {
-  if (_this) {
-    ObjectArray_cons(BASE(0), sizeof(Pair));
+Map *_(cons)(Type key, Type value, Comparer comparer) {
+  if (this && ObjectArray_cons(BASE(0), OBJECT_TYPE(Pair))) {
+    memcpy(&this->key,   &key,   sizeof(Type));
+    memcpy(&this->value, &value, sizeof(Type));
 
-    _this->key_size   = key_size;
-    _this->value_size = value_size;
-    _this->comparer   = comparer;
+    this->comparer = comparer;
   }
 
-  return _this;
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(free)() {
-  if (_this) {
+  if (this) {
     ObjectArray_free(BASE(0));
   }
 }
@@ -31,9 +30,9 @@ Pair *_(atkey)(const void *key) {
   // Base 2: as void*
 
   for (int i = 0; i < BASE(1)->size; i++) {
-    Pair *current = (Pair*)((char*)BASE(2) + i * BASE(1)->element_size);
+    Pair *current = Array_at(BASE(1), i);
 
-    if (_this->comparer(current->first, key))
+    if (this->comparer(current->first.object, key))
     {
       pair = current;
       break;
@@ -45,22 +44,17 @@ Pair *_(atkey)(const void *key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(vatkey)(const void *key) {
-  return Map_atkey(_this, key)->second;
+  return Map_atkey(this, key)->second.object;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(setkey)(void *key, void *value) {
-  Pair *current = Map_atkey(_this, key);
+  Pair *current = Map_atkey(this, key);
 
   if (current) {
-    Pair_sset(current, value);
+    Pair_sets(current, value);
   } else {
-    Pair *pair = NEW (Pair) (_this->key_size, _this->value_size);
-
-    Pair_fset(pair, key);
-    Pair_sset(pair, value);
-
-    current = ObjectArray_push(BASE(0), pair);
+    current = ObjectArray_push(BASE(0), Pair_from(key, value));
   }
 
   return current;
@@ -68,11 +62,12 @@ Pair *_(setkey)(void *key, void *value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(remkey)(const void *key) {
-  Pair *pair  = Map_atkey(_this, key);
-  int   index = Array_indexof(BASE(1), pair);
+  Pair *pair  = Map_atkey(this, key);
 
-  if (index >= 0)
+  if (pair)
   {
-    ObjectArray_rem(BASE(0), index);
+    int index = ((char*)pair - (char*)BASE(2)) / BASE(1)->element_size;
+
+    ObjectArray_rem(BASE(0), index, 0);
   }
 }

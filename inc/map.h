@@ -9,18 +9,21 @@
 #include <diagnostic.h>
 #include <oop.h>
 
-#include "object_array.h"
+#include "objectarray.h"
 #include "pair.h"
 
 #define TYPENAME Map
 
-typedef int (*Comparer)(const void*, const void*);
 
-OBJECT (size_t key_size, size_t value_size, Comparer comparer) INHERIT (ObjectArray)
-  size_t key_size;
-  size_t value_size;  
+static int streq(const char *a, const char *b) {
+  return !strcmp(a, b);
+}
+
+OBJECT (Type key, Type value, Comparer comparer) INHERIT (ObjectArray)
+  Type     key;
+  Type     value;
   Comparer comparer;
-END_OBJECT;
+END(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)streq);
 
 Pair *_(atkey)(const void *key);
 void *_(vatkey)(const void *key);

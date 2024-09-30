@@ -2,94 +2,90 @@
 
 #define TYPENAME Pair
 
-////////////////////////////////////////////////////////////////////////////////
-Pair *_(cons)(size_t first_size, size_t second_size)
+/******************************************************************************/
+void STATIC (new)(PairMember *member)
 {
-  if (_this) {
-    _this->first_size  = first_size;
-    _this->first       = malloc(first_size + sizeof(const char*));
-    _this->second_size = second_size;
-    _this->second      = malloc(second_size + sizeof(const char*));
+  if (isobject(&member->type)) {
+    member->object = talloc(&member->type);
+    member->type.new(member->object);
+  } else {
+    member->object = malloc(member->type.size);
+  }
+}
 
-    if (!_this->first || !_this->second) {
-      if (_this->first)  free(_this->first);
-      if (_this->second) free(_this->second);
+/******************************************************************************/
+void STATIC (delete)(PairMember *member)
+{
+  if (isobject(&member->type)) {
+    member->type.delete(member->object);
+    tfree(member->object);
+  } else {
+    free(member->object);
+  }
+}
 
-      free(_this);
-      _this = NULL;
-    } else {
-      memset(_this->first,  0, first_size  + sizeof(const char*));
-      memset(_this->second, 0, second_size + sizeof(const char*));
+////////////////////////////////////////////////////////////////////////////////
+Pair *_(cons)(Type first, Type second)
+{
+  if (this) {
+    memcpy(&this->first.type,  &first,  sizeof(Type));
+    memcpy(&this->second.type, &second, sizeof(Type));
+    
+    Pair_new(&this->first);
+    Pair_new(&this->second);
+
+    if (!this->first.object || !this->second.object) {
+      Pair_free(this);
+
+      this = NULL;
     }
   }
 
-  return _this;
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(free)()
 {
-  if (_this) {
-    Pair_frem(_this);
-    Pair_srem(_this);
-
-    free(_this->first);
-    free(_this->second);
+  if (this) {
+    Pair_delete(&this->first);
+    Pair_delete(&this->second);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-const char* _(fobject)()
+Pair *STATIC (from)(void *first, void *second)
 {
-  return *(const char**)((char*)_this->first + _this->first_size);
+  Pair *pair = NEW (Pair) (*gettype(first), *gettype(second));
+
+  Pair_set(&pair->first,  first);
+  Pair_set(&pair->second, second);
+
+  return pair;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-const char* _(sobject)()
+void *STATIC (set)(PairMember *member, void *element)
 {
-  return *(const char**)((char*)_this->second + _this->second_size);
-}
+  if (sametype(&member->type, gettype(element))) {
+    int object = isobject(&member->type);
 
-////////////////////////////////////////////////////////////////////////////////
-void _(frem)()
-{
-  VirtualFunction free_first  = _virtual("free", Pair_fobject(_this));
-
-  if (free_first != NULL) {
-    free_first(_this->first);
+    if (object) member->type.delete(member->object);
+    memcpy(member->object, element, member->type.size);
+    if (object) tfree(element);
   }
 
-  memset(_this->first, 0, _this->first_size);
+  return member->object;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(srem)()
+void *_(setf)(void *element)
 {
-  VirtualFunction free_second = _virtual("free", Pair_sobject(_this));
-
-  if (free_second != NULL) {
-    free_second(_this->second);
-  }
-
-  memset(_this->second, 0, _this->second_size);
+  return Pair_set(&this->first, element);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(fset)(void *element)
+void *_(sets)(void *element)
 {
-  Pair_frem(_this);
-  memcpy(_this->first, element, _this->first_size + sizeof(char*));
-  free(element);
-
-  return _this->first;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void *_(sset)(void *element)
-{
-  Pair_srem(_this);
-  memcpy(_this->second, element, _this->second_size + sizeof(char*));
-  free(element);
-  
-  return _this->second;
+  return Pair_set(&this->second, element);
 }
