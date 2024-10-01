@@ -54,7 +54,10 @@ Pair *_(setkey)(void *key, void *value) {
   if (current) {
     Pair_sets(current, value);
   } else {
-    current = ObjectArray_push(BASE(0), Pair_from(key, value));
+    current = ObjectArray_push(BASE(0), NEW (Pair) (this->key, this->value));
+
+    Pair_setf(current, key);
+    Pair_sets(current, value);
   }
 
   return current;
