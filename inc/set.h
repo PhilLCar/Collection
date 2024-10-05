@@ -14,4 +14,5 @@ END(NATIVE_TYPE(void*), NULL);
 
 void *_(add)(void *data);
 
+#undef TYPENAME
 #endif
