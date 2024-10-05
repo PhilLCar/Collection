@@ -3,12 +3,12 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(cons)(Type key, Type value, Comparer comparer) {
+Map *_(cons)(Type key, Type value, Comparer compare) {
   if (this && ObjectArray_cons(BASE(0), OBJECT_TYPE(Pair))) {
     memcpy(&this->key,   &key,   sizeof(Type));
     memcpy(&this->value, &value, sizeof(Type));
 
-    this->comparer = comparer;
+    this->compare = compare;
   }
 
   return this;
@@ -32,7 +32,7 @@ Pair *_(atkey)(const void *key) {
   for (int i = 0; i < BASE(1)->size; i++) {
     Pair *current = Array_at(BASE(1), i);
 
-    if (this->comparer(current->first.object, key))
+    if (!this->compare(current->first.object, key))
     {
       pair = current;
       break;

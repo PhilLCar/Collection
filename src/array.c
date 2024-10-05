@@ -84,7 +84,7 @@ int _(resize)(int new_size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(push)(void *data)
+void *_(push)(void *data)
 {
   if (this->size >= this->capacity) {
     void *prevloc = NULL;
@@ -94,15 +94,17 @@ void _(push)(void *data)
     { // array is copying itself, update pointer
       prevloc = this->base;
     }
-    if (!Array_recap(this, this->capacity << 1)) return;
+    if (!Array_recap(this, this->capacity << 1)) return NULL;
     if (prevloc) {
       data = (char*)data + ((long)this->base - (long)prevloc);
     }
   }
 
-  memcpy((char*)this->base + (this->element_size * this->size++),
+  memcpy((char*)this->base + (this->element_size * this->size),
 	       (char*)data,
 	       this->element_size);
+
+  return (char*)this->base + (this->element_size * this->size++);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,15 +232,17 @@ void _(clear)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(set)(int index, void *value)
+void *_(set)(int index, void *value)
 {
   if (Array_index(this, &index)) {
     memcpy((char*)this->base + (index * this->element_size), value, this->element_size);
   }
+
+  return (char*)this->base + (index * this->element_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(insert)(int index, void *data)
+void *_(insert)(int index, void *data)
 {
   if (Array_index(this, &index)) {
     if (this->size >= this->capacity) {
@@ -249,7 +253,7 @@ void _(insert)(int index, void *data)
       { // array is copying itself, update pointer
         prevloc = this->base;
       }
-      if (!Array_recap(this, this->capacity << 1)) return;
+      if (!Array_recap(this, this->capacity << 1)) return NULL;
       if (prevloc) {
         data = (char*)data + ((long)this->base - (long)prevloc);
       }
@@ -263,8 +267,10 @@ void _(insert)(int index, void *data)
            (char*)this->base +  index      * this->element_size,
            (this->size++     -  index    ) * this->element_size);
     memcpy((char*)this->base +  index      * this->element_size, 
-          (char*)data,                       this->element_size);
+           (char*)data,                      this->element_size);
   }
+
+  return (char*)this->base + (index * this->element_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

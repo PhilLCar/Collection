@@ -9,17 +9,17 @@ ObjectArray *_(split)(String *other)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ObjectArray *_(csplit)(const char *other)
+ObjectArray *_(splt)(const char *other)
 { 
   ObjectArray *array = NEW (ObjectArray) (OBJECT_TYPE(String));
 
   int len = strlen(other);
 
   for (
-    int start = 0, end = String_ccontains(this, other);
+    int start = 0, end = String_cont(this, other);
     end >= 0; 
-    start = end + len, end = String_ccontains(this, other)) {
-    ObjectArray_push(array, String_substring(NEW (String) (this->base), start, end));
+    start = end + len, end = String_cont(this, other)) {
+    ObjectArray_push(array, String_substr(NEW (String) (this->base), start, end));
   }
 
   ObjectArray_push(array, this);

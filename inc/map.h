@@ -19,10 +19,10 @@ static int streq(const char *a, const char *b) {
   return !strcmp(a, b);
 }
 
-OBJECT (Type key, Type value, Comparer comparer) INHERIT (ObjectArray)
+OBJECT (Type key, Type value, Comparer compare) INHERIT (ObjectArray)
   Type     key;
   Type     value;
-  Comparer comparer;
+  Comparer compare;
 END(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)streq);
 
 Pair *_(atkey)(const void *key);

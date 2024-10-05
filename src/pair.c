@@ -67,9 +67,9 @@ Pair *STATIC (from)(void *first, void *second)
 ////////////////////////////////////////////////////////////////////////////////
 void *STATIC (set)(PairMember *member, void *element)
 {
-  if (sametype(&member->type, gettype(element))) {
-    int object = isobject(&member->type);
+  int object = isobject(&member->type);
 
+  if (!object || sametype(&member->type, gettype(element))) {
     if (object) member->type.delete(member->object);
     memcpy(member->object, element, member->type.size);
     if (object) tfree(element);

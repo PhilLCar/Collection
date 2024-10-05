@@ -42,10 +42,10 @@ void  *_(rem)(int index, int get);
 void   _(clear)();
 
 // Sets the element at index
-void   _(set)(int index, void *element);
+void  *_(set)(int index, void *element);
 
 // Inserts an element at index
-void   _(insert)(int index, void *element);
+void  *_(insert)(int index, void *element);
 
 // Combine two arrays and deletes the other
 void   _(addrange)(Array *that);

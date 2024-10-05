@@ -4,6 +4,7 @@
 #include <objectarray.h>
 #include <pair.h>
 #include <map.h>
+#include <set.h>
 #include <diagnostic.h>
 
 void array_tests()
@@ -126,7 +127,7 @@ int array_comparer(Array *a, Array *b)
   int a1 = *(int*)Array_at(a, 1);
   int b1 = *(int*)Array_at(b, 1);
 
-  return a1 == b1;
+  return a1 != b1;
 }
 
 void map_tests()
@@ -170,12 +171,46 @@ void map_tests()
   CHECK_MEMORY
 }
 
+int cmp(int *a, int *b)
+{
+  return *b - *a;
+}
+
+void set_tests()
+{
+  printf("%s\n", "SET TESTS:");
+
+  CHECK_MEMORY
+
+  Set *test = NEW (Set) (NATIVE_TYPE(int), (Comparer)cmp);
+
+  int add = 0;
+  Set_add(test, &add);
+  add = 3;
+  Set_add(test, &add);
+  add = 1;
+  Set_add(test, &add);
+  add = 0;
+  Set_add(test, &add);
+  add = 2;
+  Set_add(test, &add);
+
+  for (int i = 0; i < ((Array*)test)->size; i++) {
+    printf("%d : %d\n", i, *(int*)Array_at((Array*)test, i));
+  }
+
+  DELETE (test);
+
+  CHECK_MEMORY
+}
+
 int main(void)
 {
   array_tests();
   object_array_tests();
   pair_tests();
   map_tests();
+  set_tests();
 
   STOP_WATCHING
 

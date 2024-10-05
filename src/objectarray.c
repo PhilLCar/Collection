@@ -66,15 +66,14 @@ int _(resize)(int new_size)
 void *_(push)(void *data)
 {
   void *pushed = NULL;
+  int   object = isobject(&this->content);
 
-  if (sametype(&this->content, gettype(data))) {
-    Array_push(BASE(0), data);
+  if (!object || sametype(&this->content, gettype(data))) {
+    pushed = Array_push(BASE(0), data);
 
-    if (isobject(&this->content)) {
+    if (object) {
       tfree(data);
     }
-
-    pushed = Array_last(BASE(0));
   }
 
   return pushed;
@@ -154,40 +153,44 @@ void _(clear)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(set)(int index, void *value)
+void *_(set)(int index, void *value)
 {
-  int object = isobject(&this->content);
+  void *set = NULL;
+  int   object = isobject(&this->content);
 
   if (object) {
     this->content.delete(Array_at(BASE(0), index));
   }
 
-  Array_set(BASE(0), index, value);
+  set = Array_set(BASE(0), index, value);
 
   if (object) {
     tfree(value);
   }
+
+  return set;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(insert)(int index, void *data)
+void *_(insert)(int index, void *data)
 {
-  Array_insert(BASE(0), index, data);
+  void *insert = Array_insert(BASE(0), index, data);
 
   if (isobject(&this->content)) {
     tfree(data);
   }
+  return insert;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(in)(void *reference, Comparer comparer)
+void *_(in)(void *reference, Comparer compare)
 {
   void *found = NULL;
 
   for (int i = 0; i < BASE(0)->size; i++) {
     void *against = Array_at(BASE(0), i);
 
-    if (comparer(against, reference)) {
+    if (!compare(against, reference)) {
       found = against;
       break;
     }
@@ -197,14 +200,14 @@ void *_(in)(void *reference, Comparer comparer)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int _(indexof)(void *reference, Comparer comparer)
+int _(indexof)(void *reference, Comparer compare)
 {
   int index = 0;
 
   for (int i = 0; i < BASE(0)->size; i++) {
     void *against = Array_at(BASE(0), i);
 
-    if (comparer(against, reference)) {
+    if (!compare(against, reference)) {
       index = i;
       break;
     }

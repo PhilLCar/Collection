@@ -28,7 +28,7 @@ int    _(recap)(int newCap);
 int    _(resize)(int newSize);
 
 // Pushes a new element onto the array
-void   _(push)(void *element);
+void  *_(push)(void *element);
 
 // Pops the last element of the array and returns a pointer to it
 void  *_(pop)();
@@ -64,10 +64,10 @@ void  *_(remptr)(int index);
 void   _(clear)();
 
 // Sets the element at index
-void   _(set)(int index, void *element);
+void  *_(set)(int index, void *element);
 
 // Inserts an element at index
-void   _(insert)(int index, void *element);
+void  *_(insert)(int index, void *element);
 
 // Combine two arrays and deletes the other
 void   _(addrange)(Array *that);
