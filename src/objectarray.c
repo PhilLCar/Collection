@@ -3,6 +3,11 @@
 #define TYPENAME ObjectArray
 
 ////////////////////////////////////////////////////////////////////////////////
+int default_comparer(const void *against, const void *reference) {
+	return reference - against;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 ObjectArray *_(cons)(Type type)
 {
   if (this && Array_cons(BASE(0), type.size)) {
@@ -187,6 +192,8 @@ void *_(in)(void *reference, Comparer compare)
 {
   void *found = NULL;
 
+  if (!compare) compare = default_comparer;
+
   for (int i = 0; i < BASE(0)->size; i++) {
     void *against = Array_at(BASE(0), i);
 
@@ -203,6 +210,8 @@ void *_(in)(void *reference, Comparer compare)
 int _(indexof)(void *reference, Comparer compare)
 {
   int index = 0;
+
+  if (!compare) compare = default_comparer;
 
   for (int i = 0; i < BASE(0)->size; i++) {
     void *against = Array_at(BASE(0), i);

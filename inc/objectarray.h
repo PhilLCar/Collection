@@ -16,6 +16,8 @@
 
 typedef int (*Comparer)(const void *against, const void *reference);
 
+int default_comparer(const void *against, const void *reference);
+
 OBJECT (Type type) INHERIT (Array)
   Type content;
 END(NATIVE_TYPE(void*));

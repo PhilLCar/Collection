@@ -8,7 +8,8 @@ Map *_(cons)(Type key, Type value, Comparer compare) {
     memcpy(&this->key,   &key,   sizeof(Type));
     memcpy(&this->value, &value, sizeof(Type));
 
-    this->compare = compare;
+    // By default simply compare pointers
+    this->compare = compare ? compare : default_comparer;
   }
 
   return this;

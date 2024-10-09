@@ -6,7 +6,7 @@
 Set *_(cons)(Type type, Comparer compare)
 {
   if (this && ObjectArray_cons(BASE(0), type)) {
-    this->compare = compare;
+    this->compare = compare ? compare : default_comparer;
   }
 
   return this;
