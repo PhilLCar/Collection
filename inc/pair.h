@@ -1,8 +1,8 @@
 #ifndef PAIR_H
 #define PAIR_H
 
-#include <oop.h>
 #include <diagnostic.h>
+#include <oop.h>
 
 #define TYPENAME Pair
 
@@ -21,6 +21,9 @@ void *STATIC (set)(PairMember *member, void *element);
 
 void *_(setf)(void *element);
 void *_(sets)(void *element);
+
+void *_(fptr)();
+void *_(sptr)();
 
 #undef TYPENAME
 #endif

@@ -27,6 +27,7 @@ END(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)streq);
 
 Pair *_(atkey)(const void *key);
 void *_(vatkey)(const void *key);
+void *_(vatkeyptr)(const void *key);
 Pair *_(setkey)(void *key, void *value);
 void  _(remkey)(const void *key);
 

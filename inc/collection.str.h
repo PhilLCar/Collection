@@ -8,8 +8,7 @@
 
 #define TYPENAME String
 
-ObjectArray *_(split)(String *other);
-ObjectArray *_(csplit)(const char *other);
+ObjectArray *_(split)(const char *other);
 
 
 #undef TYPENAME

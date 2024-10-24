@@ -48,6 +48,13 @@ void *_(vatkey)(const void *key) {
   return Map_atkey(this, key)->second.object;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(vatkeyptr)(const void *key) {
+  return Pair_sptr(Map_atkey(this, key));
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(setkey)(void *key, void *value) {
   Pair *current = Map_atkey(this, key);
