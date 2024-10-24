@@ -155,13 +155,7 @@ void *_(at)(int index)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(atptr)(int index)
 {
-  char *address = NULL;
-
-  if (Array_index(this, &index)) {
-    address = ((void**)this->base)[index];
-  }
-
-  return address;
+  return *(void**)Array_at(this, index);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,9 +12,10 @@ ObjectArray *_(split)(const char *other)
 
   for (int end = String_cont(this, other); end >= 0; start = end + len, end = String_cont(this, other)) {
     ObjectArray_push(array, String_substr(NEW (String) (this->base), start, end));
+    String_substr(this, end + len, 0);
   }
 
-  ObjectArray_push(array, String_substr(this, start, 0));
+  ObjectArray_push(array, this);
 
   return array;
 }
