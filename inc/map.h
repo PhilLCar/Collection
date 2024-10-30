@@ -14,22 +14,18 @@
 
 #define TYPENAME Map
 
-
-static int streq(const char *a, const char *b) {
-  return !strcmp(a, b);
-}
-
 OBJECT (Type key, Type value, Comparer compare) INHERIT (ObjectArray)
   Type     key;
   Type     value;
   Comparer compare;
-END(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)streq);
+END(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)strcmp);
 
-Pair *_(atkey)(const void *key);
-void *_(vatkey)(const void *key);
-void *_(vatkeyptr)(const void *key);
-Pair *_(setkey)(void *key, void *value);
-void  _(remkey)(const void *key);
+Pair *_(Set)(void *key, void *value);
+void  _(Remove)(const void *key);
+
+Pair *CONST (At)(const void *key);
+void *CONST (ValueAt)(const void *key);
+void *CONST (ValueAtDeref)(const void *key);
 
 #undef TYPENAME
 #endif

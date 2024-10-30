@@ -12,7 +12,7 @@ OBJECT (Type type, Comparer compare) INHERIT (ObjectArray)
   Comparer compare;
 END(NATIVE_TYPE(void*), NULL);
 
-void *_(add)(void *data);
+void *_(Add)(void *data);
 
 #undef TYPENAME
 #endif

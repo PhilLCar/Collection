@@ -16,14 +16,14 @@ OBJECT (Type first, Type second)
   PairMember second;
 END(NATIVE_TYPE(void*), NATIVE_TYPE(void*));
 
-Pair *STATIC (from)(void *first, void *second);
-void *STATIC (set)(PairMember *member, void *element);
+Pair *STATIC (From)(void *first, void *second);
+void *STATIC (Set)(PairMember *member, void *element);
 
-void *_(setf)(void *element);
-void *_(sets)(void *element);
+void *_(SetF)(void *element);
+void *_(SetS)(void *element);
 
-void *_(fptr)();
-void *_(sptr)();
+void *CONST (DerefF)();
+void *CONST (DerefS)();
 
 #undef TYPENAME
 #endif

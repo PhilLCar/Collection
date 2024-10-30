@@ -19,17 +19,17 @@ void array_tests()
 
   int a = 9, b = 1, c = 43;
 
-  Array_push(test, &a);
-  Array_push(test, &b);
-  Array_push(test, &c);
+  Array_Push(test, &a);
+  Array_Push(test, &b);
+  Array_Push(test, &c);
 
   printf("Size: %d\n", test->size);
 
-  printf("Elem 2: %d\n", *(int*)Array_at(test, 2));
+  printf("Elem 2: %d\n", *(int*)Array_At(test, 2));
 
   while (test->size)
   {
-    printf("Pop: %d\n", *(int*)Array_pop(test));
+    printf("Pop: %d\n", *(int*)Array_Pop(test));
   }
 
   CHECK_MEMORY
@@ -53,35 +53,35 @@ void object_array_tests()
 
   int x = 1, y = 2, z = 4;
 
-  Array_fill(a, &x, &y, &z, NULL);
-  Array_fill(b, &x, &z, NULL);
-  Array_fill(c, &y, &z, NULL);
+  Array_Fill(a, &x, &y, &z, NULL);
+  Array_Fill(b, &x, &z, NULL);
+  Array_Fill(c, &y, &z, NULL);
 
-  ObjectArray_fill(test, a, b, c, NULL);
+  ObjectArray_Fill(test, a, b, c, NULL);
 
   CHECK_MEMORY
 
-  Array *tb = Array_at((Array*)test, 1);
+  Array *tb = Array_At((Array*)test, 1);
 
   while (tb->size)
   {
-    printf("Pop (b): %d\n", *(int*)Array_pop(tb));
+    printf("Pop (b): %d\n", *(int*)Array_Pop(tb));
   }
 
-  ObjectArray_rem(test, 1, 0);
+  ObjectArray_RemoveAt(test, 1, 0);
 
   printf("Size: %d\n", test->base.size);
 
-  Array *ta = Array_at((Array*)test, 0);
+  Array *ta = Array_At((Array*)test, 0);
   while (ta->size)
   {
-    printf("Pop (a): %d\n", *(int*)Array_pop(ta));
+    printf("Pop (a): %d\n", *(int*)Array_Pop(ta));
   }
 
-  Array *tc = Array_at((Array*)test, 1);
+  Array *tc = Array_At((Array*)test, 1);
   while (tc->size)
   {
-    printf("Pop (c): %d\n", *(int*)Array_pop(tc));
+    printf("Pop (c): %d\n", *(int*)Array_Pop(tc));
   }
 
   DELETE (test);
@@ -97,9 +97,9 @@ void pair_tests()
 
   CHECK_MEMORY
 
-  Array *a = Array_fill(NEW (Array) (sizeof(int)), &x, &y, NULL), 
-        *b = Array_fill(NEW (Array) (sizeof(int)), &x, &z, NULL),
-        *c = Array_fill(NEW (Array) (sizeof(int)), &y, &z, NULL);
+  Array *a = Array_Fill(NEW (Array) (sizeof(int)), &x, &y, NULL), 
+        *b = Array_Fill(NEW (Array) (sizeof(int)), &x, &z, NULL),
+        *c = Array_Fill(NEW (Array) (sizeof(int)), &y, &z, NULL);
 
   CHECK_MEMORY
 
@@ -107,13 +107,13 @@ void pair_tests()
 
   CHECK_MEMORY
 
-  a = Pair_setf(p, a);
-  b = Pair_sets(p, b);
+  a = Pair_SetF(p, a);
+  b = Pair_SetS(p, b);
 
-  printf("Pop (a): %d\n", *(int*)Array_pop(a));
-  printf("Rem (b): %d\n", *(int*)Array_rem(b, 0));
+  printf("Pop (a): %d\n", *(int*)Array_Pop(a));
+  printf("Rem (b): %d\n", *(int*)Array_Remove(b));
 
-  c = Pair_setf(p, c);
+  c = Pair_SetF(p, c);
 
   CHECK_MEMORY
 
@@ -124,8 +124,8 @@ void pair_tests()
 
 int array_comparer(Array *a, Array *b)
 {
-  int a1 = *(int*)Array_at(a, 1);
-  int b1 = *(int*)Array_at(b, 1);
+  int a1 = *(int*)Array_At(a, 1);
+  int b1 = *(int*)Array_At(b, 1);
 
   return a1 != b1;
 }
@@ -138,10 +138,10 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Array *a = Array_fill(NEW (Array) (sizeof(int)), &w, &x, NULL), 
-        *b = Array_fill(NEW (Array) (sizeof(int)), &x, &y, NULL),
-        *c = Array_fill(NEW (Array) (sizeof(int)), &y, &z, NULL),
-        *d = Array_fill(NEW (Array) (sizeof(int)), &z, &w, NULL);
+  Array *a = Array_Fill(NEW (Array) (sizeof(int)), &w, &x, NULL), 
+        *b = Array_Fill(NEW (Array) (sizeof(int)), &x, &y, NULL),
+        *c = Array_Fill(NEW (Array) (sizeof(int)), &y, &z, NULL),
+        *d = Array_Fill(NEW (Array) (sizeof(int)), &z, &w, NULL);
 
   CHECK_MEMORY
 
@@ -149,21 +149,21 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Pair p1 = *Map_setkey(m, a, b);
+  Pair p1 = *Map_Set(m, a, b);
   a = p1.first.object;
   b = p1.second.object;
 
-  Pair p2 = *Map_setkey(m, c, d);
+  Pair p2 = *Map_Set(m, c, d);
   c = p2.first.object;
   d = p2.second.object;
 
   CHECK_MEMORY
 
-  d = Map_vatkey(m, c);
+  d = Map_ValueAt(m, c);
 
   for (int i = 0; i < d->size; i++)
   {
-    printf("Index (d): %d\n", *(int*)Array_at(d, i));
+    printf("Index (d): %d\n", *(int*)Array_At(d, i));
   }
 
   DELETE (m);
@@ -185,18 +185,18 @@ void set_tests()
   Set *test = NEW (Set) (NATIVE_TYPE(int), (Comparer)cmp);
 
   int add = 0;
-  Set_add(test, &add);
+  Set_Add(test, &add);
   add = 3;
-  Set_add(test, &add);
+  Set_Add(test, &add);
   add = 1;
-  Set_add(test, &add);
+  Set_Add(test, &add);
   add = 0;
-  Set_add(test, &add);
+  Set_Add(test, &add);
   add = 2;
-  Set_add(test, &add);
+  Set_Add(test, &add);
 
   for (int i = 0; i < ((Array*)test)->size; i++) {
-    printf("%d : %d\n", i, *(int*)Array_at((Array*)test, i));
+    printf("%d : %d\n", i, *(int*)Array_At((Array*)test, i));
   }
 
   DELETE (test);

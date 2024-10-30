@@ -8,9 +8,11 @@ int default_comparer(const void *against, const void *reference) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ObjectArray *_(cons)(Type type)
+ObjectArray *_(Construct)(Type type)
 {
-  if (this && Array_cons(BASE(0), type.size)) {
+  Array_Construct(BASE(0), type.size);
+
+  if (this) {
     memcpy(&this->content, &type, sizeof(Type));
   }
 
@@ -18,23 +20,23 @@ ObjectArray *_(cons)(Type type)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(free)()
+void _(Destruct)()
 {
   if (this) {
-    ObjectArray_clear(this);
-    Array_free(BASE(0));
+    ObjectArray_Clear(this);
+    Array_Destruct(BASE(0));
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ObjectArray *_(fill)(...)
+ObjectArray *_(Fill)(...)
 {
   void    *arg;
   va_list  args;
 
   va_start(args, this);
   while ((arg = va_arg(args, void*))) {
-    ObjectArray_push(this, arg);
+    ObjectArray_Push(this, arg);
   }
   va_end(args);
 
@@ -42,39 +44,51 @@ ObjectArray *_(fill)(...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int _(resize)(int new_size)
+int _(Resize)(int newSize)
 {
   int success = 1;
 
-  if (BASE(0)->size < new_size) {
+  if (BASE(0)->size < newSize) {
     int size = BASE(0)->size;
 
-    if ((success = Array_resize(BASE(0), new_size)) && isobject(&this->content)) {
-      for (int i = size; i < new_size; i++) {
-        this->content.new(Array_at(BASE(0), i));
+    if ((success = Array_Resize(BASE(0), newSize)) && isobject(&this->content)) {
+      for (int i = size; i < newSize; i++) {
+        this->content.construct(Array_At(BASE(0), i));
       }
     }
-  } else if (BASE(0)->size > new_size) {
+  } else if (BASE(0)->size > newSize) {
     if (isobject(&this->content)) {
-      for (int i = new_size; i < BASE(0)->size; i++) {
-        this->content.delete(Array_at(BASE(0), i));
+      for (int i = newSize; i < BASE(0)->size; i++) {
+        this->content.destruct(Array_At(BASE(0), i));
       }
     }
 
-    success = Array_resize(BASE(0), new_size);
+    success = Array_Resize(BASE(0), newSize);
   }
 
   return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(push)(void *data)
+void *_(Insert)(int index, void *data)
+{
+  void *insert = Array_Insert(BASE(0), index, data);
+
+  if (isobject(&this->content)) {
+    tfree(data);
+  }
+
+  return insert;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(Push)(void *data)
 {
   void *pushed = NULL;
   int   object = isobject(&this->content);
 
   if (!object || sametype(&this->content, gettype(data))) {
-    pushed = Array_push(BASE(0), data);
+    pushed = Array_Push(BASE(0), data);
 
     if (object) {
       tfree(data);
@@ -82,6 +96,31 @@ void *_(push)(void *data)
   }
 
   return pushed;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(Add)(void *data)
+{
+  return ObjectArray_Insert(this, 0, data);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(Set)(int index, void *value)
+{
+  void *set = NULL;
+  int   object = isobject(&this->content);
+
+  if (object) {
+    this->content.destruct(Array_At(BASE(0), index));
+  }
+
+  set = Array_Set(BASE(0), index, value);
+
+  if (object) {
+    tfree(value);
+  }
+
+  return set;
 }
 
 /******************************************************************************/
@@ -95,15 +134,31 @@ void *_(alloc)(void *returned)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(pop)(int get)
+void *_(RemoveAt)(int index, int get)
 {
-  void *popped = Array_pop(BASE(0));
+  void *removed = Array_RemoveAt(BASE(0), index);
+  
+  if (isobject(&this->content)) {
+    if (get) {
+      removed = ObjectArray_alloc(this, removed);
+    } else {
+      this->content.destruct(removed);
+    }
+  }
+
+  return removed;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(Pop)(int get)
+{
+  void *popped = Array_Pop(BASE(0));
 
   if (isobject(&this->content)) {
     if (get) {
       popped = ObjectArray_alloc(this, popped);
     } else {
-      this->content.delete(popped);
+      this->content.destruct(popped);
     }
   }
 
@@ -111,11 +166,17 @@ void *_(pop)(int get)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int _(remrange)(int start, int range)
+void *_(Remove)(int index, int get)
+{
+  return ObjectArray_RemoveAt(this, 0, get);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int _(RemoveRange)(int start, int range)
 {
   int removed = 0;
 
-  if (Array_index(BASE(0), &start)) {
+  if (Array_Index(BASE(0), &start)) {
     if (start + range > BASE(0)->size) {
       range = BASE(0)->size - start;
     }
@@ -123,79 +184,32 @@ int _(remrange)(int start, int range)
     // delete the objects first
     if (isobject(&this->content)) {
       for (int i = start; i < start + range; i++) {
-        this->content.delete(Array_at(BASE(0), i));
+        this->content.destruct(Array_At(BASE(0), i));
       }
     }
     
     // Then remove the range
-    removed = Array_remrange(BASE(0), start, range);
-  }
-
-  return removed;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-void *_(rem)(int index, int get)
-{
-  void *removed = Array_rem(BASE(0), index);
-  
-  if (isobject(&this->content)) {
-    if (get) {
-      removed = ObjectArray_alloc(this, removed);
-    } else {
-      this->content.delete(removed);
-    }
+    removed = Array_RemoveRange(BASE(0), start, range);
   }
 
   return removed;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(clear)()
+void _(Clear)()
 {
-  ObjectArray_remrange(this, 0, BASE(0)->size);
+  ObjectArray_RemoveRange(this, 0, BASE(0)->size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(set)(int index, void *value)
-{
-  void *set = NULL;
-  int   object = isobject(&this->content);
-
-  if (object) {
-    this->content.delete(Array_at(BASE(0), index));
-  }
-
-  set = Array_set(BASE(0), index, value);
-
-  if (object) {
-    tfree(value);
-  }
-
-  return set;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void *_(insert)(int index, void *data)
-{
-  void *insert = Array_insert(BASE(0), index, data);
-
-  if (isobject(&this->content)) {
-    tfree(data);
-  }
-  return insert;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void *_(in)(void *reference, Comparer compare)
+void *CONST (In)(const void *reference, Comparer compare)
 {
   void *found = NULL;
 
   if (!compare) compare = default_comparer;
 
   for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = Array_at(BASE(0), i);
+    void *against = Array_At(BASE(0), i);
 
     if (!compare(against, reference)) {
       found = against;
@@ -207,14 +221,14 @@ void *_(in)(void *reference, Comparer compare)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int _(indexof)(void *reference, Comparer compare)
+int CONST (IndexOf)(const void *reference, Comparer compare)
 {
   int index = 0;
 
   if (!compare) compare = default_comparer;
 
   for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = Array_at(BASE(0), i);
+    void *against = Array_At(BASE(0), i);
 
     if (!compare(against, reference)) {
       index = i;

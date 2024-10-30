@@ -3,8 +3,10 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(cons)(Type key, Type value, Comparer compare) {
-  if (this && ObjectArray_cons(BASE(0), OBJECT_TYPE(Pair))) {
+Map *_(Construct)(Type key, Type value, Comparer compare) {
+  ObjectArray_Construct(BASE(0), OBJECT_TYPE(Pair));
+
+  if (this) {
     memcpy(&this->key,   &key,   sizeof(Type));
     memcpy(&this->value, &value, sizeof(Type));
 
@@ -16,14 +18,41 @@ Map *_(cons)(Type key, Type value, Comparer compare) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(free)() {
+void _(Destruct)() {
   if (this) {
-    ObjectArray_free(BASE(0));
+    ObjectArray_Destruct(BASE(0));
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+Pair *_(Set)(void *key, void *value) {
+  Pair *current = Map_At(this, key);
+
+  if (!current) {
+    current = ObjectArray_Push(BASE(0), NEW (Pair) (this->key, this->value));
+  }
+
+  Pair_SetF(current, key);
+  Pair_SetS(current, value);
+
+  return current;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(Remove)(const void *key) {
+  Pair *pair  = Map_At(this, key);
+
+  if (pair)
+  {
+    int index = ((char*)pair - (char*)BASE(2)) / BASE(1)->element_size;
+
+    ObjectArray_RemoveAt(BASE(0), index, 0);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(atkey)(const void *key) {
+Pair *CONST (At)(const void *key) {
   Pair  *pair  = NULL;
 
   // Base 0: as ObjectArray
@@ -31,7 +60,7 @@ Pair *_(atkey)(const void *key) {
   // Base 2: as void*
 
   for (int i = 0; i < BASE(1)->size; i++) {
-    Pair *current = Array_at(BASE(1), i);
+    Pair *current = Array_At(BASE(1), i);
 
     if (!this->compare(current->first.object, key))
     {
@@ -44,41 +73,13 @@ Pair *_(atkey)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(vatkey)(const void *key) {
-  return Map_atkey(this, key)->second.object;
+void *CONST (ValueAt)(const void *key) {
+  return Map_At(this, key)->second.object;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(vatkeyptr)(const void *key) {
-  return Pair_sptr(Map_atkey(this, key));
+void *CONST (ValueAtDeref)(const void *key) {
+  return Pair_DerefS(Map_At(this, key));
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-Pair *_(setkey)(void *key, void *value) {
-  Pair *current = Map_atkey(this, key);
-
-  if (current) {
-    Pair_sets(current, value);
-  } else {
-    current = ObjectArray_push(BASE(0), NEW (Pair) (this->key, this->value));
-
-    Pair_setf(current, key);
-    Pair_sets(current, value);
-  }
-
-  return current;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void _(remkey)(const void *key) {
-  Pair *pair  = Map_atkey(this, key);
-
-  if (pair)
-  {
-    int index = ((char*)pair - (char*)BASE(2)) / BASE(1)->element_size;
-
-    ObjectArray_rem(BASE(0), index, 0);
-  }
-}

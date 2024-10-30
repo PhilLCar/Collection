@@ -3,9 +3,11 @@
 #define TYPENAME Set
 
 ////////////////////////////////////////////////////////////////////////////////
-Set *_(cons)(Type type, Comparer compare)
+Set *_(Construct)(Type type, Comparer compare)
 {
-  if (this && ObjectArray_cons(BASE(0), type)) {
+  ObjectArray_Construct(BASE(0), type);
+
+  if (this) {
     this->compare = compare ? compare : default_comparer;
   }
 
@@ -13,25 +15,25 @@ Set *_(cons)(Type type, Comparer compare)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(free)()
+void _(Destruct)()
 {
   if (this) {
-    ObjectArray_free(BASE(0));
+    ObjectArray_Destruct(BASE(0));
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(add)(void *data)
+void *_(Add)(void *data)
 {
   for (int i = 0; i < BASE(1)->size; i++) {
-    int cmp = this->compare(Array_at(BASE(1), i), data);
+    int cmp = this->compare(Array_At(BASE(1), i), data);
 
     if (cmp < 0) {
-      return ObjectArray_insert(BASE(0), i, data);
+      return ObjectArray_Insert(BASE(0), i, data);
     } else if (!cmp) {
       return NULL;
     }
   }
   
-  return ObjectArray_push(BASE(0), data);
+  return ObjectArray_Push(BASE(0), data);
 }

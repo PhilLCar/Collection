@@ -23,40 +23,43 @@ OBJECT (Type type) INHERIT (Array)
 END(NATIVE_TYPE(void*));
 
 // Fills the array with values
-ObjectArray *_(fill)(...);
+ObjectArray *_(Fill)(...);
 
 // Sets the size of the array to the desired value. Recaps if necessary.
-int    _(resize)(int new_size);
-
-// Pushes a new element onto the array
-void  *_(push)(void *element);
-
-// Pops the last element of the array and returns a pointer to it
-void  *_(pop)(int get);
-
-// Removes a range of elements starting at index start
-int    _(remrange)(int start, int range);
-
-// Removes the element at index and returns a pointer to it
-void  *_(rem)(int index, int get);
-
-// Clears the array
-void   _(clear)();
-
-// Sets the element at index
-void  *_(set)(int index, void *element);
+int    _(Resize)(int newSize);
 
 // Inserts an element at index
-void  *_(insert)(int index, void *element);
+void  *_(Insert)(int index, void *element);
 
-// Combine two arrays and deletes the other
-void   _(addrange)(Array *that);
+// Pushes a new element onto the array
+void  *_(Push)(void *element);
+
+// Pushes a new element onto the array
+void  *_(Add)(void *element);
+
+// Sets the element at index
+void  *_(Set)(int index, void *element);
+
+// Removes the element at index and returns a pointer to it
+void  *_(RemoveAt)(int index, int get);
+
+// Pops the last element of the array and returns a pointer to it
+void  *_(Pop)(int get);
+
+// Removes the element at index and returns a pointer to it
+void  *_(Remove)(int index, int get);
+
+// Removes a range of elements starting at index start
+int    _(RemoveRange)(int start, int range);
+
+// Clears the array
+void   _(Clear)();
 
 // Returns a pointer to the element targeted if present
-void  *_(in)(void *reference, Comparer comparer);
+void  *CONST (In)(const void *reference, Comparer comparer);
 
 // Returns the index of the element targeted
-int    _(indexof)(void *reference, Comparer comparer);
+int    CONST (IndexOf)(const void *reference, Comparer comparer);
 
 #undef TYPENAME
 #endif
