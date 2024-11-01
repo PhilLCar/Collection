@@ -14,7 +14,7 @@ Array *_(Construct)(size_t element_size)
       this->capacity      = 1;
       this->element_size  = element_size;
     } else {
-      DELETE(this);
+      THROW(NEW (MemoryAllocationException)());
     }
   }
 
@@ -342,3 +342,5 @@ int CONST (IndexOf)(const void *data)
 
   return index;
 }
+
+#undef TYPENAME

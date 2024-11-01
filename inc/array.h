@@ -9,6 +9,7 @@
 // CUT
 #include <diagnostic.h>
 #include <oop.h>
+#include <exception.h>
 
 #define TYPENAME Array
 
@@ -16,7 +17,7 @@ OBJECT (size_t element_size) INHERIT (void*)
   int     size;
   int     capacity;
   size_t  element_size;
-END(sizeof(void*));
+END_OBJECT(sizeof(void*));
 
 // Fills the array with values
 Array *_(Fill)(...);

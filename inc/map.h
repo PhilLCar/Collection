@@ -18,7 +18,7 @@ OBJECT (Type key, Type value, Comparer compare) INHERIT (ObjectArray)
   Type     key;
   Type     value;
   Comparer compare;
-END(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)strcmp);
+END_OBJECT(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)strcmp);
 
 Pair *_(Set)(void *key, void *value);
 void  _(Remove)(const void *key);

@@ -9,6 +9,8 @@ Set *_(Construct)(Type type, Comparer compare)
 
   if (this) {
     this->compare = compare ? compare : default_comparer;
+  } else {
+    THROW(NEW (MemoryAllocationException)());
   }
 
   return this;
@@ -37,3 +39,5 @@ void *_(Add)(void *data)
   
   return ObjectArray_Push(BASE(0), data);
 }
+
+#undef TYPENAME

@@ -38,8 +38,10 @@ Pair *_(Construct)(Type first, Type second)
     Pair_construct(&this->second);
 
     if (!this->first.object || !this->second.object) {
-      DELETE (this);
+      THROW(NEW (MemoryAllocationException)());
     }
+  } else {
+    THROW(NEW (MemoryAllocationException)());
   }
 
   return this;
@@ -102,3 +104,5 @@ void *CONST (DerefS)()
 {
   return *(void**)this->second.object;
 }
+
+#undef TYPENAME

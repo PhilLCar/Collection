@@ -12,6 +12,8 @@ Map *_(Construct)(Type key, Type value, Comparer compare) {
 
     // By default simply compare pointers
     this->compare = compare ? compare : default_comparer;
+  } else {
+    THROW(NEW (MemoryAllocationException)());
   }
 
   return this;
@@ -83,3 +85,4 @@ void *CONST (ValueAtDeref)(const void *key) {
   return Pair_DerefS(Map_At(this, key));
 }
 
+#undef TYPENAME

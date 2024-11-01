@@ -20,7 +20,7 @@ int default_comparer(const void *against, const void *reference);
 
 OBJECT (Type type) INHERIT (Array)
   Type content;
-END(NATIVE_TYPE(void*));
+END_OBJECT(NATIVE_TYPE(void*));
 
 // Fills the array with values
 ObjectArray *_(Fill)(...);

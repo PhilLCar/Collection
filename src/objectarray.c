@@ -14,6 +14,8 @@ ObjectArray *_(Construct)(Type type)
 
   if (this) {
     memcpy(&this->content, &type, sizeof(Type));
+  } else {
+    THROW(NEW (MemoryAllocationException)());
   }
 
   return this;
@@ -238,3 +240,5 @@ int CONST (IndexOf)(const void *reference, Comparer compare)
 
   return index;
 }
+
+#undef TYPENAME

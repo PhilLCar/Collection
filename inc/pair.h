@@ -3,6 +3,7 @@
 
 #include <diagnostic.h>
 #include <oop.h>
+#include <exception.h>
 
 #define TYPENAME Pair
 
@@ -14,7 +15,7 @@ typedef struct _pair_member {
 OBJECT (Type first, Type second)
   PairMember first;
   PairMember second;
-END(NATIVE_TYPE(void*), NATIVE_TYPE(void*));
+END_OBJECT(NATIVE_TYPE(void*), NATIVE_TYPE(void*));
 
 Pair *STATIC (From)(void *first, void *second);
 void *STATIC (Set)(PairMember *member, void *element);
