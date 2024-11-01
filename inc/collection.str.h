@@ -1,15 +1,15 @@
-// #ifndef COLLECTION_STR_H
-// #define COLLECTION_STR_H
+#ifndef COLLECTION_STR_H
+#define COLLECTION_STR_H
 
-// #include <diagnostic.h>
-// #include <oop.h>
-// #include <objectarray.h>
-// #include <str.h>
+#include <diagnostic.h>
+#include <oop.h>
+#include <objectarray.h>
+#include <str.h>
 
-// #define TYPENAME String
+#define TYPENAME String
 
-// ObjectArray *_(Split)(const char *other);
+ObjectArray *_(Split)(const char *other);
 
 
-// #undef TYPENAME
-// #endif
+#undef TYPENAME
+#endif
