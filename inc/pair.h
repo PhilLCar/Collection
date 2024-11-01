@@ -12,7 +12,7 @@ typedef struct _pair_member {
   Type  type;
 } PairMember;
 
-OBJECT (Type first, Type second)
+OBJECT (Type first, Type second) NOBASE
   PairMember first;
   PairMember second;
 END_OBJECT(NATIVE_TYPE(void*), NATIVE_TYPE(void*));
