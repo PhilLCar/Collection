@@ -10,14 +10,10 @@ int default_comparer(const void *against, const void *reference) {
 ////////////////////////////////////////////////////////////////////////////////
 ObjectArray *_(Construct)(Type type)
 {
-  Array_Construct(BASE(0), type.size);
-
-  if (this) {
+  if (Array_Construct(BASE(0), type.size)) {
     memcpy(&this->content, &type, sizeof(Type));
-  } else {
-    THROW(NEW (MemoryAllocationException)());
   }
-
+  
   return this;
 }
 

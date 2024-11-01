@@ -4,18 +4,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 Map *_(Construct)(Type key, Type value, Comparer compare) {
-  ObjectArray_Construct(BASE(0), OBJECT_TYPE(Pair));
-
-  if (this) {
+  if (ObjectArray_Construct(BASE(0), OBJECT_TYPE(Pair))) {
     memcpy(&this->key,   &key,   sizeof(Type));
     memcpy(&this->value, &value, sizeof(Type));
 
     // By default simply compare pointers
     this->compare = compare ? compare : default_comparer;
-  } else {
-    THROW(NEW (MemoryAllocationException)());
   }
-
+  
   return this;
 }
 

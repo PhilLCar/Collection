@@ -5,12 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 Set *_(Construct)(Type type, Comparer compare)
 {
-  ObjectArray_Construct(BASE(0), type);
-
-  if (this) {
+  if (ObjectArray_Construct(BASE(0), type)) {
     this->compare = compare ? compare : default_comparer;
-  } else {
-    THROW(NEW (MemoryAllocationException)());
   }
 
   return this;
