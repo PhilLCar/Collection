@@ -164,7 +164,7 @@ void *_(Pop)(int get)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(Remove)(int index, int get)
+void *_(Remove)(int get)
 {
   return ObjectArray_RemoveAt(this, 0, get);
 }

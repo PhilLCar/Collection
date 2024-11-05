@@ -47,7 +47,7 @@ void  *_(RemoveAt)(int index, int get);
 void  *_(Pop)(int get);
 
 // Removes the element at index and returns a pointer to it
-void  *_(Remove)(int index, int get);
+void  *_(Remove)(int get);
 
 // Removes a range of elements starting at index start
 int    _(RemoveRange)(int start, int range);
