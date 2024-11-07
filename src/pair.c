@@ -10,6 +10,7 @@ void STATIC (construct)(PairMember *member)
     member->type.construct(member->object);
   } else {
     member->object = malloc(member->type.size);
+    memset(member->object, 0, member->type.size);
   }
 }
 
@@ -25,6 +26,20 @@ void STATIC (destruct)(PairMember *member)
     }
     member->object = NULL;
   }
+}
+
+/******************************************************************************/
+void *STATIC (set)(PairMember *member, void *element)
+{
+  int object = isobject(&member->type);
+
+  if (!object || sametype(&member->type, gettype(element))) {
+    if (object) member->type.destruct(member->object);
+    memcpy(member->object, element, member->type.size);
+    if (object) tfree(element);
+  }
+
+  return member->object;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,36 +76,22 @@ Pair *STATIC (From)(void *first, void *second)
 {
   Pair *pair = NEW (Pair) (*gettype(first), *gettype(second));
 
-  Pair_Set(&pair->first,  first);
-  Pair_Set(&pair->second, second);
+  Pair_set(&pair->first,  first);
+  Pair_set(&pair->second, second);
 
   return pair;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *STATIC (Set)(PairMember *member, void *element)
-{
-  int object = isobject(&member->type);
-
-  if (!object || sametype(&member->type, gettype(element))) {
-    if (object) member->type.destruct(member->object);
-    memcpy(member->object, element, member->type.size);
-    if (object) tfree(element);
-  }
-
-  return member->object;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void *_(SetF)(void *element)
 {
-  return Pair_Set(&this->first, element);
+  return Pair_set(&this->first, element);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(SetS)(void *element)
 {
-  return Pair_Set(&this->second, element);
+  return Pair_set(&this->second, element);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

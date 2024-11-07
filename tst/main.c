@@ -5,6 +5,7 @@
 #include <pair.h>
 #include <map.h>
 #include <set.h>
+#include <list.h>
 #include <diagnostic.h>
 
 void array_tests()
@@ -204,6 +205,55 @@ void set_tests()
   CHECK_MEMORY
 }
 
+void list_tests()
+{
+  printf("%s\n", "LIST TESTS:");
+
+  CHECK_MEMORY
+
+  List *test = NEW (List)();
+
+  int na = 1, nb = 2, nc = 3;
+
+  List_Add(test, &na);
+  List_Add(test, &nb);
+  List_Add(test, &nc);
+
+  for (int i = 0; i < List_Size(test); i++)
+  {
+    printf("%d: %d\n", i, *(int*)List_At(test, i));
+  }
+
+  int *pop;
+
+  List_Remove(test, (void**)&pop);
+
+  printf("Popped: %d\n", *pop);
+
+  free(pop);
+
+  for (int i = 0; i < List_Size(test); i++)
+  {
+    printf("%d: %d\n", i, *(int*)List_At(test, i));
+  }
+
+  List *other = List_Fill(NEW (List)(), &nb, &nc, &na, NULL);
+
+  List_Merge(test, other);
+
+  List_RemoveAt(test, 3, NULL);
+  List_Insert(test, 2, &nc);
+
+  for (int i = 0; i < List_Size(test); i++)
+  {
+    printf("%d: %d\n", i, *(int*)List_At(test, i));
+  }
+
+  DELETE (test);
+
+  CHECK_MEMORY
+}
+
 int main(void)
 {
   array_tests();
@@ -211,6 +261,7 @@ int main(void)
   pair_tests();
   map_tests();
   set_tests();
+  list_tests();
 
   STOP_WATCHING
 
