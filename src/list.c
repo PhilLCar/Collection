@@ -10,7 +10,7 @@ List *_(Construct)()
   }
   
   // Empty list
-  return (List*)Pair_Construct(BASE(0), NATIVE_TYPE(void*), NATIVE_TYPE(void*));
+  return (List*)Pair_Construct(BASE(0), TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(void*)));
 }
 
 void _(Destruct)()

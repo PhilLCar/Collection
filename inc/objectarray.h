@@ -18,9 +18,9 @@ typedef int (*Comparer)(const void *against, const void *reference);
 
 int default_comparer(const void *against, const void *reference);
 
-OBJECT (Type type) INHERIT (Array)
-  Type content;
-END_OBJECT(NATIVE_TYPE(void*));
+OBJECT (const Type *type) INHERIT (Array)
+  const Type *type;
+END_OBJECT(TYPEOF (NATIVE(void*)));
 
 // Fills the array with values
 ObjectArray *_(Fill)(...);

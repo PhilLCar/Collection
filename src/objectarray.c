@@ -8,10 +8,10 @@ int default_comparer(const void *against, const void *reference) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ObjectArray *_(Construct)(Type type)
+ObjectArray *_(Construct)(const Type *type)
 {
-  if (Array_Construct(BASE(0), type.size)) {
-    memcpy(&this->content, &type, sizeof(Type));
+  if (Array_Construct(BASE(0), type->size)) {
+    this->type = type;
   }
   
   return this;
@@ -49,15 +49,15 @@ int _(Resize)(int newSize)
   if (BASE(0)->size < newSize) {
     int size = BASE(0)->size;
 
-    if ((success = Array_Resize(BASE(0), newSize)) && isobject(&this->content)) {
+    if ((success = Array_Resize(BASE(0), newSize)) && isobject(this->type)) {
       for (int i = size; i < newSize; i++) {
-        this->content.construct(Array_At(BASE(0), i));
+        this->type->construct(Array_At(BASE(0), i));
       }
     }
   } else if (BASE(0)->size > newSize) {
-    if (isobject(&this->content)) {
+    if (isobject(this->type)) {
       for (int i = newSize; i < BASE(0)->size; i++) {
-        this->content.destruct(Array_At(BASE(0), i));
+        this->type->destruct(Array_At(BASE(0), i));
       }
     }
 
@@ -72,7 +72,7 @@ void *_(Insert)(int index, void *data)
 {
   void *insert = Array_Insert(BASE(0), index, data);
 
-  if (isobject(&this->content)) {
+  if (isobject(this->type)) {
     tfree(data);
   }
 
@@ -83,9 +83,9 @@ void *_(Insert)(int index, void *data)
 void *_(Push)(void *data)
 {
   void *pushed = NULL;
-  int   object = isobject(&this->content);
+  int   object = isobject(this->type);
 
-  if (!object || sametype(&this->content, gettype(data))) {
+  if (!object || sametype(this->type, gettype(data))) {
     pushed = Array_Push(BASE(0), data);
 
     if (object) {
@@ -106,10 +106,10 @@ void *_(Add)(void *data)
 void *_(Set)(int index, void *value)
 {
   void *set = NULL;
-  int   object = isobject(&this->content);
+  int   object = isobject(this->type);
 
   if (object) {
-    this->content.destruct(Array_At(BASE(0), index));
+    this->type->destruct(Array_At(BASE(0), index));
   }
 
   set = Array_Set(BASE(0), index, value);
@@ -124,9 +124,9 @@ void *_(Set)(int index, void *value)
 /******************************************************************************/
 void *_(alloc)(void *returned)
 {
-  void *elem = talloc(&this->content);
+  void *elem = talloc(this->type);
 
-  memcpy(elem, returned, this->content.size);
+  memcpy(elem, returned, this->type->size);
 
   return elem;
 }
@@ -136,11 +136,11 @@ void *_(RemoveAt)(int index, int get)
 {
   void *removed = Array_RemoveAt(BASE(0), index);
   
-  if (isobject(&this->content)) {
+  if (isobject(this->type)) {
     if (get) {
       removed = ObjectArray_alloc(this, removed);
     } else {
-      this->content.destruct(removed);
+      this->type->destruct(removed);
     }
   }
 
@@ -152,11 +152,11 @@ void *_(Pop)(int get)
 {
   void *popped = Array_Pop(BASE(0));
 
-  if (isobject(&this->content)) {
+  if (isobject(this->type)) {
     if (get) {
       popped = ObjectArray_alloc(this, popped);
     } else {
-      this->content.destruct(popped);
+      this->type->destruct(popped);
     }
   }
 
@@ -180,9 +180,9 @@ int _(RemoveRange)(int start, int range)
     }
 
     // delete the objects first
-    if (isobject(&this->content)) {
+    if (isobject(this->type)) {
       for (int i = start; i < start + range; i++) {
-        this->content.destruct(Array_At(BASE(0), i));
+        this->type->destruct(Array_At(BASE(0), i));
       }
     }
     

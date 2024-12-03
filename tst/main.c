@@ -46,7 +46,7 @@ void object_array_tests()
 
   CHECK_MEMORY
 
-  ObjectArray *test = NEW (ObjectArray) (OBJECT_TYPE(Array));
+  ObjectArray *test = NEW (ObjectArray) (TYPEOF (Array));
 
   CHECK_MEMORY
 
@@ -104,7 +104,7 @@ void pair_tests()
 
   CHECK_MEMORY
 
-  Pair *p = NEW (Pair) (OBJECT_TYPE(Array), OBJECT_TYPE(Array));
+  Pair *p = NEW (Pair) (TYPEOF (Array), TYPEOF (Array));
 
   CHECK_MEMORY
 
@@ -146,7 +146,7 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Map *m = NEW (Map) (OBJECT_TYPE(Array), OBJECT_TYPE(Array), (Comparer)array_comparer);
+  Map *m = NEW (Map) (TYPEOF (Array), TYPEOF (Array), (Comparer)array_comparer);
 
   CHECK_MEMORY
 
@@ -183,7 +183,7 @@ void set_tests()
 
   CHECK_MEMORY
 
-  Set *test = NEW (Set) (NATIVE_TYPE(int), (Comparer)cmp);
+  Set *test = NEW (Set) (TYPEOF (NATIVE(int)), (Comparer)cmp);
 
   int add = 0;
   Set_Add(test, &add);

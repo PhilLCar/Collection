@@ -3,14 +3,16 @@
 #define TYPENAME Pair
 
 /******************************************************************************/
-void STATIC (construct)(PairMember *member)
+void STATIC (construct)(PairMember *member, const Type *type)
 {
-  if (isobject(&member->type)) {
-    member->object = talloc(&member->type);
-    member->type.construct(member->object);
+  member->type = type;
+
+  if (isobject(member->type)) {
+    member->object = talloc(member->type);
+    member->type->construct(member->object);
   } else {
-    member->object = malloc(member->type.size);
-    memset(member->object, 0, member->type.size);
+    member->object = malloc(member->type->size);
+    memset(member->object, 0, member->type->size);
   }
 }
 
@@ -18,8 +20,8 @@ void STATIC (construct)(PairMember *member)
 void STATIC (destruct)(PairMember *member)
 {
   if (member->object) {
-    if (isobject(&member->type)) {
-      member->type.destruct(member->object);
+    if (isobject(member->type)) {
+      member->type->destruct(member->object);
       tfree(member->object);
     } else {
       free(member->object);
@@ -31,11 +33,11 @@ void STATIC (destruct)(PairMember *member)
 /******************************************************************************/
 void *STATIC (set)(PairMember *member, void *element)
 {
-  int object = isobject(&member->type);
+  int object = isobject(member->type);
 
-  if (!object || sametype(&member->type, gettype(element))) {
-    if (object) member->type.destruct(member->object);
-    memcpy(member->object, element, member->type.size);
+  if (!object || sametype(member->type, gettype(element))) {
+    if (object) member->type->destruct(member->object);
+    memcpy(member->object, element, member->type->size);
     if (object) tfree(element);
   }
 
@@ -43,14 +45,11 @@ void *STATIC (set)(PairMember *member, void *element)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(Construct)(Type first, Type second)
+Pair *_(Construct)(const Type *first, const Type *second)
 {
-  if (this) {
-    memcpy(&this->first.type,  &first,  sizeof(Type));
-    memcpy(&this->second.type, &second, sizeof(Type));
-    
-    Pair_construct(&this->first);
-    Pair_construct(&this->second);
+  if (this) {    
+    Pair_construct(&this->first, first);
+    Pair_construct(&this->second, second);
 
     if (!this->first.object || !this->second.object) {
       THROW(NEW (MemoryAllocationException)());
@@ -74,7 +73,7 @@ void _(Destruct)()
 ////////////////////////////////////////////////////////////////////////////////
 Pair *STATIC (From)(void *first, void *second)
 {
-  Pair *pair = NEW (Pair) (*gettype(first), *gettype(second));
+  Pair *pair = NEW (Pair) (gettype(first), gettype(second));
 
   Pair_set(&pair->first,  first);
   Pair_set(&pair->second, second);

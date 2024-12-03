@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ObjectArray *_(Split)(const char *other)
 { 
-  ObjectArray *array = NEW (ObjectArray) (OBJECT_TYPE(String));
+  ObjectArray *array = NEW (ObjectArray) (TYPEOF (String));
 
   for (int end = String_Cnt(this, other), len = strlen(other); 
        end >= 0; 

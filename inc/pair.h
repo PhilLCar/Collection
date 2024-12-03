@@ -8,14 +8,14 @@
 #define TYPENAME Pair
 
 typedef struct _pair_member {
-  void *object;
-  Type  type;
+  void       *object;
+  const Type *type;
 } PairMember;
 
-OBJECT (Type first, Type second) NOBASE
+OBJECT (const Type *first, const Type *second) NOBASE
   PairMember first;
   PairMember second;
-END_OBJECT(NATIVE_TYPE(void*), NATIVE_TYPE(void*));
+END_OBJECT(TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(void*)));
 
 Pair *STATIC (From)(void *first, void *second);
 void *STATIC (Set)(PairMember *member, void *element);

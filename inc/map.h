@@ -14,11 +14,11 @@
 
 #define TYPENAME Map
 
-OBJECT (Type key, Type value, Comparer compare) INHERIT (ObjectArray)
-  Type     key;
-  Type     value;
-  Comparer compare;
-END_OBJECT(NATIVE_TYPE(const char *), NATIVE_TYPE(void*), (Comparer)strcmp);
+OBJECT (const Type *key, const Type *value, Comparer compare) INHERIT (ObjectArray)
+  const Type *key;
+  const Type *value;
+  Comparer    compare;
+END_OBJECT(TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(const char *)), (Comparer)strcmp);
 
 Pair *_(Set)(void *key, void *value);
 void  _(Remove)(const void *key);

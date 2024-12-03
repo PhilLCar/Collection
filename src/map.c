@@ -3,10 +3,10 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(Construct)(Type key, Type value, Comparer compare) {
-  if (ObjectArray_Construct(BASE(0), OBJECT_TYPE(Pair))) {
-    memcpy(&this->key,   &key,   sizeof(Type));
-    memcpy(&this->value, &value, sizeof(Type));
+Map *_(Construct)(const Type *key, const Type *value, Comparer compare) {
+  if (ObjectArray_Construct(BASE(0), TYPEOF (Pair))) {
+    this->key   = key;
+    this->value = value;
 
     // By default simply compare pointers
     this->compare = compare ? compare : default_comparer;

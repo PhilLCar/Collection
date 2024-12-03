@@ -3,7 +3,7 @@
 #define TYPENAME Set
 
 ////////////////////////////////////////////////////////////////////////////////
-Set *_(Construct)(Type type, Comparer compare)
+Set *_(Construct)(const Type *type, Comparer compare)
 {
   if (ObjectArray_Construct(BASE(0), type)) {
     this->compare = compare ? compare : default_comparer;
