@@ -18,6 +18,8 @@ END_OBJECT();
 void *CONST (Head)();
 List *CONST (Next)();
 
+int   CONST (Empty)();
+
 void *CONST (At)(int index);
 int   CONST (Size)();
 void *CONST (In)(const void *element, Comparer compare);

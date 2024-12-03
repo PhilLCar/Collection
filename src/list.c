@@ -35,6 +35,11 @@ List *CONST (Next)()
   return Pair_DerefS(BASE(0));
 }
 
+int CONST (Empty)()
+{
+  return !List_Next(this);
+}
+
 void *CONST (At)(int index)
 {
   if (index) {
