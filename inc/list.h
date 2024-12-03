@@ -24,17 +24,17 @@ void *CONST (At)(int index);
 int   CONST (Size)();
 void *CONST (In)(const void *element, Comparer compare);
 
-List *CONST (Push)(const void *element);
+List *CONST (Push)(const void *element, int object);
 
-List *_(Fill)(...);
+List *_(Fill)(int objects, ...);
 
 List *_(Pop)(void **object);
 
-void  _(Add)(const void *element);
+List *_(Add)(const void *element);
 void  _(Remove)(void **object);
 
-void  _(Set)(int index, const void *element);
-void  _(Insert)(int index, const void *element);
+List *_(Set)(int index, const void *element);
+List *_(Insert)(int index, const void *element);
 void  _(RemoveAt)(int index, void **object);
 
 void _(Merge)(List *other);

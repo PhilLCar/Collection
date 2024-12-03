@@ -4,6 +4,11 @@
 
 List *_(Construct)()
 {
+  if (this) {
+    // default
+    this->object = 0;
+  }
+  
   // Empty list
   return (List*)Pair_Construct(BASE(0), NATIVE_TYPE(void*), NATIVE_TYPE(void*));
 }
@@ -71,25 +76,27 @@ void *CONST (In)(const void *element, Comparer compare)
   return List_In(next, element, compare);
 }
 
-List *CONST (Push)(const void *element)
+List *CONST (Push)(const void *element, int object)
 {
   List *list = NEW (List)();
 
   Pair_SetF((Pair*)list, (void*)element);
   Pair_SetS((Pair*)list, &this);
 
+  list->object = object;
+
   return list;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *_(Fill)(...)
+List *_(Fill)(int objects, ...)
 {
   void    *arg;
   va_list  args;
 
-  va_start(args, this);
+  va_start(args, objects);
   while ((arg = va_arg(args, void*))) {
-    List_Add(this, arg);
+    List_Add(this, arg)->object = objects;
   }
   va_end(args);
 
@@ -122,7 +129,7 @@ List *_(Pop)(void **object)
   return next;
 }
 
-void _(Add)(const void *element)
+List *_(Add)(const void *element)
 {
   List *next = List_Next(this);
 
@@ -131,8 +138,10 @@ void _(Add)(const void *element)
 
     Pair_SetF(BASE(0), (void*)element);
     Pair_SetS(BASE(0), &next);
+
+    return this;
   } else {
-    List_Add(next, element);
+    return List_Add(next, element);
   }
 }
 
@@ -151,22 +160,24 @@ void _(Remove)(void **object)
   }
 }
 
-void _(Set)(int index, const void *element)
+List *_(Set)(int index, const void *element)
 {
   if (!index) {
     if (this->object) {
       void *object = List_Head(this);
 
       DELETE (object);
-
-      Pair_SetF(BASE(0), (void*)element);
     }
+
+    Pair_SetF(BASE(0), (void*)element);
+
+    return this;
   } else {
     return List_Set(List_Next(this), index - 1, element);
   }
 }
 
-void _(Insert)(int index, const void *element)
+List *_(Insert)(int index, const void *element)
 {
   List *next = List_Next(this);
 
@@ -176,10 +187,15 @@ void _(Insert)(int index, const void *element)
     Pair_SetF(&insert->base, List_Head(this));
     Pair_SetS(&insert->base, &next);
 
+    insert->object = this->object;
+    this->object   = 0; // default
+
     Pair_SetF(BASE(0), (void*)element);
     Pair_SetS(BASE(0), &insert);
+
+    return this;
   } else {
-    List_Insert(next, index - 1, element);
+    return List_Insert(next, index - 1, element);
   }
 }
 

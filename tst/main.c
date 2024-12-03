@@ -237,7 +237,7 @@ void list_tests()
     printf("%d: %d\n", i, *(int*)List_At(test, i));
   }
 
-  List *other = List_Fill(NEW (List)(), &nb, &nc, &na, NULL);
+  List *other = List_Fill(NEW (List)(), 0, &nb, &nc, &na, NULL);
 
   List_Merge(test, other);
 
