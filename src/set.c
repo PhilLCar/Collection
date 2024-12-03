@@ -29,6 +29,10 @@ void *_(Add)(void *data)
     if (cmp < 0) {
       return ObjectArray_Insert(BASE(0), i, data);
     } else if (!cmp) {
+      if (isobject(BASE(0)->type)) {
+        DELETE (data);
+      }
+
       return NULL;
     }
   }
