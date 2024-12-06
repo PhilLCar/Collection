@@ -80,7 +80,9 @@ void *CONST (ValueAt)(const void *key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAtDeref)(const void *key) {
-  return Pair_DerefS(Map_At(this, key));
+  Pair *p = Map_At(this, key);
+
+  return p ? Pair_DerefS(p) : NULL;
 }
 
 #undef TYPENAME
