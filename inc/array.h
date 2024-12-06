@@ -40,6 +40,9 @@ void  *_(Add)(const void *element);
 // Combine two arrays (deletes the other)
 void   _(Merge)(Array *that);
 
+// Swaps 2 elements of the array specified by their indexes
+int    _(Swap)(int index1, int index2);
+
 // Sets the element at index
 void  *_(Set)(int index, const void *element);
 

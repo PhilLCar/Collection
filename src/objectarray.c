@@ -221,7 +221,7 @@ void *CONST (In)(const void *reference, Comparer compare)
 ////////////////////////////////////////////////////////////////////////////////
 int CONST (IndexOf)(const void *reference, Comparer compare)
 {
-  int index = 0;
+  int index = -1;
 
   if (!compare) compare = default_comparer;
 

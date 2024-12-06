@@ -163,6 +163,27 @@ void _(Merge)(Array *that)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+int _(Swap)(int index1, int index2)
+{
+  int swapped = 0;
+
+  if (Array_Index(this, &index1) && Array_Index(this, &index2) && index1 != index2) {
+    char *buffer = malloc(this->element_size);
+
+    void *ptr1 = (char*)this->base + (index1 * this->element_size);
+    void *ptr2 = (char*)this->base + (index2 * this->element_size);
+
+    memcpy(buffer, ptr1,   this->element_size);
+    memcpy(ptr1,   ptr2,   this->element_size);
+    memcpy(ptr2,   buffer, this->element_size);
+
+    swapped = 1;
+  }
+
+  return swapped;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void *_(Set)(int index, const void *value)
 {
   if (Array_Index(this, &index)) {
