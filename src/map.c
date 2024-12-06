@@ -72,7 +72,9 @@ Pair *CONST (At)(const void *key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAt)(const void *key) {
-  return Map_At(this, key)->second.object;
+  Pair *p = Map_At(this, key);
+  
+  return p ? p->second.object : NULL;
 }
 
 

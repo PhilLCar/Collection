@@ -96,13 +96,17 @@ void *_(SetS)(void *element)
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (DerefF)()
 {
-  return *(void**)this->first.object;
+  void **ptr = this->first.object;
+
+  return ptr ? *ptr : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (DerefS)()
 {
-  return *(void**)this->second.object;
+  void **ptr = this->second.object;
+  
+  return ptr ? *ptr : NULL;
 }
 
 #undef TYPENAME
