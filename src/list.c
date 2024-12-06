@@ -4,13 +4,13 @@
 
 List *_(Construct)()
 {
-  if (this) {
+  if (Pair_Construct(BASE(0), TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(void*)))) {
     // default
     this->object = 0;
   }
   
   // Empty list
-  return (List*)Pair_Construct(BASE(0), TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(void*)));
+  return this;
 }
 
 void _(Destruct)()
@@ -32,7 +32,7 @@ void _(Destruct)()
 
 void *CONST (Head)()
 {
-  return BASE(0)->first.object;
+  return Pair_DerefF(BASE(0));
 }
 
 List *CONST (Next)()
@@ -80,7 +80,7 @@ List *CONST (Push)(const void *element, int object)
 {
   List *list = NEW (List)();
 
-  Pair_SetF((Pair*)list, (void*)element);
+  Pair_SetF((Pair*)list, &element);
   Pair_SetS((Pair*)list, &this);
 
   list->object = object;
@@ -108,7 +108,6 @@ void _(alloc)(void** object)
   if (object) {
     *object = List_Head(this);
 
-    BASE(0)->first.object = malloc(sizeof(void*));
     memset(BASE(0)->first.object, 0, sizeof(void*));
   } else if (this->object) {
     void *obj = List_Head(this);
@@ -136,7 +135,7 @@ List *_(Add)(const void *element)
   if (!next) {
     next = NEW (List)();
 
-    Pair_SetF(BASE(0), (void*)element);
+    Pair_SetF(BASE(0), &element);
     Pair_SetS(BASE(0), &next);
 
     return this;
@@ -169,7 +168,7 @@ List *_(Set)(int index, const void *element)
       DELETE (object);
     }
 
-    Pair_SetF(BASE(0), (void*)element);
+    Pair_SetF(BASE(0), &element);
 
     return this;
   } else {
@@ -183,14 +182,15 @@ List *_(Insert)(int index, const void *element)
 
   if (!index) {
     List *insert = NEW (List)();
+    void *head   = List_Head(this);
 
-    Pair_SetF(&insert->base, List_Head(this));
+    Pair_SetF(&insert->base, &head);
     Pair_SetS(&insert->base, &next);
 
     insert->object = this->object;
     this->object   = 0; // default
 
-    Pair_SetF(BASE(0), (void*)element);
+    Pair_SetF(BASE(0), &element);
     Pair_SetS(BASE(0), &insert);
 
     return this;
@@ -204,11 +204,12 @@ void _(RemoveAt)(int index, void **object)
     List *next = List_Next(this);
 
   if (!index) {
+    void *head    = List_Head(next);
     List *further = List_Next(next);
 
     List_alloc(this, object);
 
-    Pair_SetF(BASE(0), List_Head(next));
+    Pair_SetF(BASE(0), &head);
     Pair_SetS(BASE(0), &further);
 
     Pair_Destruct(&next->base);
@@ -223,9 +224,11 @@ void _(Merge)(List *other)
   List *next = List_Next(this);
 
   if (!next) {
+    void *head = List_Head(other);
+
     next = List_Next(other);
 
-    Pair_SetF(BASE(0), List_Head(other));
+    Pair_SetF(BASE(0), &head);
     Pair_SetS(BASE(0), &next);
 
     Pair_Destruct(&other->base);

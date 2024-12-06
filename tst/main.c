@@ -230,7 +230,7 @@ void list_tests()
 
   printf("Popped: %d\n", *pop);
 
-  free(pop);
+  //free(pop);
 
   for (int i = 0; i < List_Size(test); i++)
   {

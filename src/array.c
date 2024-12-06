@@ -86,7 +86,9 @@ int _(Resize)(int newSize)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Insert)(int index, const void *data)
 {
-  if (Array_Index(this, &index)) {
+  void *inserted = NULL;
+
+  if (Array_Index(this, &index) || index == this->size) {
     if (this->size >= this->capacity) {
       void *prevloc = NULL;
 
@@ -110,9 +112,11 @@ void *_(Insert)(int index, const void *data)
            (this->size++     -  index    ) * this->element_size);
     memcpy((char*)this->base +  index      * this->element_size, 
            (char*)data,                      this->element_size);
+
+    inserted = (char*)this->base + (index * this->element_size);
   }
 
-  return (char*)this->base + (index * this->element_size);
+  return inserted;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
