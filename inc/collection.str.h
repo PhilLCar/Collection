@@ -1,4 +1,4 @@
-#if defined(STR_H) || 1
+#if defined(STR_H) || defined(COLLECTION) || 1
 // TODO: Eventually add a preprocessor variable with the name of the lib
 
 #ifndef COLLECTION_STR_H
