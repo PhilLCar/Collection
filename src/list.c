@@ -65,7 +65,7 @@ int CONST (Size)()
   return 0;
 }
 
-void *CONST (In)(const void *element, Comparer compare)
+void *CONST (Contains)(const void *element, Comparer compare)
 {
   void *head = List_Head(this);
   void *next = List_Next(this);
@@ -73,7 +73,7 @@ void *CONST (In)(const void *element, Comparer compare)
   if (!next)                   return NULL;
   if (!compare(head, element)) return head;
 
-  return List_In(next, element, compare);
+  return List_Contains(next, element, compare);
 }
 
 List *CONST (Push)(const void *element, int object)

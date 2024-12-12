@@ -334,7 +334,7 @@ void *CONST (LastDeref)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (In)(const void *data)
+void *CONST (Contains)(const void *data)
 {
   void *contains = NULL;
   for (int i = 0; i < this->size; i++) {
@@ -350,9 +350,9 @@ void *CONST (In)(const void *data)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (InDeref)(const void *data)
+void *CONST (ContainsDeref)(const void *data)
 {
-  void **ptr = Array_In(this, data);
+  void **ptr = Array_Contains(this, data);
 
   return ptr ? *ptr : NULL;
 }

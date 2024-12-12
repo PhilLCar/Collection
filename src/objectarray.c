@@ -8,7 +8,8 @@ int default_comparer(const void *against, const void *reference) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int default_base_comparer(const void **against, const void *reference) {
+int default_key_comparer(const void **against, const void *reference) {
+  // Assume the key is the first member of the object
 	return default_comparer(*against, reference);
 }
 
@@ -227,13 +228,13 @@ Comparer CONST (comparer)()
 }
 
 /******************************************************************************/
-Comparer CONST (baseComparer)()
+Comparer CONST (keyComparer)()
 {
-  return IFNULL(virtual(this->type, "BaseComparer"), default_base_comparer);
+  return IFNULL(virtual(this->type, "KeyComparer"), default_key_comparer);
 }
 
 /******************************************************************************/
-void *CONST (in)(const void *reference, Comparer compare)
+void *CONST (contains)(const void *reference, Comparer compare)
 {
   void *found = NULL;
 
@@ -250,15 +251,15 @@ void *CONST (in)(const void *reference, Comparer compare)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (In)(const void *reference)
+void *CONST (Contains)(const void *reference)
 {
-  return ObjectArray_in(this, reference, ObjectArray_comparer(this));
+  return ObjectArray_contains(this, reference, ObjectArray_comparer(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (BaseIn)(const void *reference)
+void *CONST (ContainsKey)(const void *reference)
 {
-  return ObjectArray_in(this, reference, ObjectArray_baseComparer(this));
+  return ObjectArray_contains(this, reference, ObjectArray_keyComparer(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -285,9 +286,9 @@ int CONST (IndexOf)(const void *reference)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int CONST (BaseIndexOf)(const void *reference)
+int CONST (IndexOfKey)(const void *reference)
 {
-  return ObjectArray_indexOf(this, reference, ObjectArray_baseComparer(this));
+  return ObjectArray_indexOf(this, reference, ObjectArray_keyComparer(this));
 }
 
 

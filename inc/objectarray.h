@@ -16,8 +16,10 @@
 
 typedef int (*Comparer)(const void *against, const void *reference);
 
+// The comparer compares the object to another of the same type (for ordering)
 int default_comparer(const void *against, const void *reference);
-int default_base_comparer(const void **against, const void *reference);
+// The key comparer compares the object to a key (for binary search);
+int default_key_comparer(const void **against, const void *reference);
 
 OBJECT (const Type *type) INHERIT (Array)
   const Type *type;
@@ -60,16 +62,16 @@ void   _(Clear)();
 void *CONST (At)(int index);
 
 // Returns a pointer to the element targeted if present
-void  *CONST (In)(const void *reference);
+void  *CONST (Contains)(const void *reference);
 
 // Returns a pointer to the element that contains the targeted base if present
-void  *CONST (BaseIn)(const void *reference);
+void  *CONST (ContainsKey)(const void *reference);
 
 // Returns the index of the element targeted
 int    CONST (IndexOf)(const void *reference);
 
 // Returns the index of the element that contains the targeted base
-int    CONST (BaseIndexOf)(const void *reference);
+int    CONST (IndexOfKey)(const void *reference);
 
 #undef TYPENAME
 #endif

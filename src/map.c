@@ -5,10 +5,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 Map *_(Construct)(const Type *key, const Type *value) {
   if (ObjectArray_Construct(BASE(0), TYPEOF (Pair))) {
-    this->key          = key;
-    this->value        = value;
-    this->comparer     = IFNULL(virtual(key, "Comparer"),     default_comparer);
-    this->baseComparer = IFNULL(virtual(key, "BaseComparer"), default_base_comparer);
+    this->key         = key;
+    this->value       = value;
+    this->comparer    = IFNULL(virtual(key, "Comparer"),    default_comparer);
+    this->keyComparer = IFNULL(virtual(key, "KeyComparer"), default_key_comparer);
   }
   
   return this;
@@ -48,8 +48,8 @@ void _(Remove)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(BaseRemove)(const void *key) {
-  Pair *pair  = Map_BaseAt(this, key);
+void _(RemoveKey)(const void *key) {
+  Pair *pair  = Map_AtKey(this, key);
 
   if (pair)
   {
@@ -86,8 +86,8 @@ Pair *CONST (At)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *CONST (BaseAt)(const void *key) {
-  return Map_at(this, this->baseComparer, key);
+Pair *CONST (AtKey)(const void *key) {
+  return Map_at(this, this->keyComparer, key);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,8 @@ void *CONST (ValueAt)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (BaseValueAt)(const void *key) {
-  Pair *p = Map_BaseAt(this, key);
+void *CONST (ValueAtKey)(const void *key) {
+  Pair *p = Map_AtKey(this, key);
   
   return p ? p->second.object : NULL;
 }
@@ -112,8 +112,8 @@ void *CONST (ValueAtDeref)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (BaseValueAtDeref)(const void *key) {
-  Pair *p = Map_BaseAt(this, key);
+void *CONST (ValueAtKeyDeref)(const void *key) {
+  Pair *p = Map_AtKey(this, key);
 
   return p ? Pair_SDeref(p) : NULL;
 }

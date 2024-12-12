@@ -86,10 +86,10 @@ void  *CONST (Last)();
 void  *CONST (LastDeref)();
 
 // Returns a pointer to the element targeted if present
-void  *CONST (In)(const void *element);
+void  *CONST (Contains)(const void *element);
 
 // Returns the element targeted if present
-void  *CONST (InDeref)(const void *element);
+void  *CONST (ContainsDeref)(const void *element);
 
 // Returns the index of the element targeted
 int    CONST (IndexOf)(const void *element);
