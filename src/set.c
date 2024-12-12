@@ -3,10 +3,10 @@
 #define TYPENAME Set
 
 ////////////////////////////////////////////////////////////////////////////////
-Set *_(Construct)(const Type *type, Comparer compare)
+Set *_(Construct)(const Type *type)
 {
   if (ObjectArray_Construct(BASE(0), type)) {
-    this->compare = compare ? compare : default_comparer;
+    this->comparer = IFNULL(virtual(type, "Comparer"), default_comparer);
   }
 
   return this;
@@ -24,7 +24,7 @@ void _(Destruct)()
 void *_(Add)(void *data)
 {
   for (int i = 0; i < BASE(1)->size; i++) {
-    int cmp = this->compare(Array_At(BASE(1), i), data);
+    int cmp = this->comparer(Array_At(BASE(1), i), data);
 
     if (cmp < 0) {
       return ObjectArray_Insert(BASE(0), i, data);

@@ -146,7 +146,9 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Map *m = NEW (Map) (TYPEOF (Array), TYPEOF (Array), (Comparer)array_comparer);
+  Map *m = NEW (Map) (TYPEOF (Array), TYPEOF (Array));
+
+  m->comparer = (Comparer)array_comparer;
 
   CHECK_MEMORY
 
@@ -183,7 +185,9 @@ void set_tests()
 
   CHECK_MEMORY
 
-  Set *test = NEW (Set) (TYPEOF (NATIVE(int)), (Comparer)cmp);
+  Set *test = NEW (Set) (TYPEOF (NATIVE(int)));
+  
+  test->comparer = (Comparer)cmp;
 
   int add = 0;
   Set_Add(test, &add);

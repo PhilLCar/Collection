@@ -9,9 +9,9 @@
 
 #define TYPENAME Set
 
-OBJECT (const Type *type, Comparer compare) INHERIT (ObjectArray)
-  Comparer compare;
-END_OBJECT(TYPEOF (NATIVE(void*)), NULL);
+OBJECT (const Type *type) INHERIT (ObjectArray)
+  Comparer comparer;
+END_OBJECT(TYPEOF (NATIVE(void*)));
 
 void *_(Add)(void *data);
 

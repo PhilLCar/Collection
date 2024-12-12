@@ -17,9 +17,11 @@
 typedef int (*Comparer)(const void *against, const void *reference);
 
 int default_comparer(const void *against, const void *reference);
+int default_base_comparer(const void **against, const void *reference);
 
 OBJECT (const Type *type) INHERIT (Array)
   const Type *type;
+  void       *buffer;
 END_OBJECT(TYPEOF (NATIVE(void*)));
 
 // Fills the array with values
@@ -55,11 +57,19 @@ int    _(RemoveRange)(int start, int range);
 // Clears the array
 void   _(Clear)();
 
+void *CONST (At)(int index);
+
 // Returns a pointer to the element targeted if present
-void  *CONST (In)(const void *reference, Comparer comparer);
+void  *CONST (In)(const void *reference);
+
+// Returns a pointer to the element that contains the targeted base if present
+void  *CONST (BaseIn)(const void *reference);
 
 // Returns the index of the element targeted
-int    CONST (IndexOf)(const void *reference, Comparer comparer);
+int    CONST (IndexOf)(const void *reference);
+
+// Returns the index of the element that contains the targeted base
+int    CONST (BaseIndexOf)(const void *reference);
 
 #undef TYPENAME
 #endif

@@ -3,13 +3,12 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(Construct)(const Type *key, const Type *value, Comparer compare) {
+Map *_(Construct)(const Type *key, const Type *value) {
   if (ObjectArray_Construct(BASE(0), TYPEOF (Pair))) {
-    this->key   = key;
-    this->value = value;
-
-    // By default simply compare pointers
-    this->compare = compare ? compare : default_comparer;
+    this->key          = key;
+    this->value        = value;
+    this->comparer     = IFNULL(virtual(key, "Comparer"),     default_comparer);
+    this->baseComparer = IFNULL(virtual(key, "BaseComparer"), default_base_comparer);
   }
   
   return this;
@@ -21,7 +20,6 @@ void _(Destruct)() {
     ObjectArray_Destruct(BASE(0));
   }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(Set)(void *key, void *value) {
@@ -50,7 +48,19 @@ void _(Remove)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *CONST (At)(const void *key) {
+void _(BaseRemove)(const void *key) {
+  Pair *pair  = Map_BaseAt(this, key);
+
+  if (pair)
+  {
+    int index = ((char*)pair - (char*)BASE(2)) / BASE(1)->element_size;
+
+    ObjectArray_RemoveAt(BASE(0), index, 0);
+  }
+}
+
+/******************************************************************************/
+Pair *CONST (at)(Comparer comparer, void *(*at)(const Array*, int), const void *key) {
   Pair  *pair  = NULL;
 
   // Base 0: as ObjectArray
@@ -58,9 +68,9 @@ Pair *CONST (At)(const void *key) {
   // Base 2: as void*
 
   for (int i = 0; i < BASE(1)->size; i++) {
-    Pair *current = Array_At(BASE(1), i);
+    Pair *current = at(BASE(1), i);
 
-    if (!this->compare(current->first.object, key))
+    if (!comparer(current->first.object, key))
     {
       pair = current;
       break;
@@ -71,18 +81,41 @@ Pair *CONST (At)(const void *key) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+Pair *CONST (At)(const void *key) {
+  return Map_at(this, this->comparer, Array_At, key);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+Pair *CONST (BaseAt)(const void *key) {
+  return Map_at(this, this->baseComparer, Array_AtDeref, key);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAt)(const void *key) {
   Pair *p = Map_At(this, key);
   
   return p ? p->second.object : NULL;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void *CONST (BaseValueAt)(const void *key) {
+  Pair *p = Map_BaseAt(this, key);
+  
+  return p ? p->second.object : NULL;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAtDeref)(const void *key) {
   Pair *p = Map_At(this, key);
 
-  return p ? Pair_DerefS(p) : NULL;
+  return p ? Pair_SDeref(p) : NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *CONST (BaseValueAtDeref)(const void *key) {
+  Pair *p = Map_BaseAt(this, key);
+
+  return p ? Pair_SDeref(p) : NULL;
 }
 
 #undef TYPENAME

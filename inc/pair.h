@@ -23,8 +23,11 @@ void *STATIC (Set)(PairMember *member, void *element);
 void *_(SetF)(void *element);
 void *_(SetS)(void *element);
 
-void *CONST (DerefF)();
-void *CONST (DerefS)();
+void *_(F)();
+void *_(S)();
+
+void *CONST (FDeref)();
+void *CONST (SDeref)();
 
 #undef TYPENAME
 #endif

@@ -32,12 +32,12 @@ void _(Destruct)()
 
 void *CONST (Head)()
 {
-  return Pair_DerefF(BASE(0));
+  return Pair_FDeref(BASE(0));
 }
 
 List *CONST (Next)()
 {
-  return Pair_DerefS(BASE(0));
+  return Pair_SDeref(BASE(0));
 }
 
 int CONST (Empty)()

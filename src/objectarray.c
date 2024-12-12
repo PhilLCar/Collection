@@ -8,10 +8,16 @@ int default_comparer(const void *against, const void *reference) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+int default_base_comparer(const void **against, const void *reference) {
+	return default_comparer(*against, reference);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 ObjectArray *_(Construct)(const Type *type)
 {
   if (Array_Construct(BASE(0), type->size)) {
-    this->type = type;
+    this->type   = type;
+    this->buffer = talloc(type);
   }
   
   return this;
@@ -21,6 +27,7 @@ ObjectArray *_(Construct)(const Type *type)
 void _(Destruct)()
 {
   if (this) {
+    tfree(this->buffer);
     ObjectArray_Clear(this);
     Array_Destruct(BASE(0));
   }
@@ -200,14 +207,38 @@ void _(Clear)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (In)(const void *reference, Comparer compare)
+void *CONST (At)(int index)
+{
+  void *at;
+
+  if ((at = Array_At(BASE(0), index))) {
+    memcpy(this->buffer, at, this->type->size);
+
+    at = this->buffer;
+  }
+
+  return at;
+}
+
+/******************************************************************************/
+Comparer CONST (comparer)()
+{
+  return IFNULL(virtual(this->type, "Comparer"), default_comparer);
+}
+
+/******************************************************************************/
+Comparer CONST (baseComparer)()
+{
+  return IFNULL(virtual(this->type, "BaseComparer"), default_base_comparer);
+}
+
+/******************************************************************************/
+void *CONST (in)(const void *reference, Comparer compare,  void *(*at)(const Array*, int))
 {
   void *found = NULL;
 
-  if (!compare) compare = default_comparer;
-
   for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = Array_At(BASE(0), i);
+    void *against = at(BASE(0), i);
 
     if (!compare(against, reference)) {
       found = against;
@@ -219,14 +250,24 @@ void *CONST (In)(const void *reference, Comparer compare)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int CONST (IndexOf)(const void *reference, Comparer compare)
+void *CONST (In)(const void *reference)
+{
+  return ObjectArray_in(this, reference, ObjectArray_comparer(this), Array_At);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *CONST (BaseIn)(const void *reference)
+{
+  return ObjectArray_in(this, reference, ObjectArray_baseComparer(this), Array_AtDeref);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int CONST (indexOf)(const void *reference, Comparer compare, void *(*at)(const Array*, int))
 {
   int index = -1;
 
-  if (!compare) compare = default_comparer;
-
   for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = Array_At(BASE(0), i);
+    void *against = at(BASE(0), i);
 
     if (!compare(against, reference)) {
       index = i;
@@ -236,5 +277,18 @@ int CONST (IndexOf)(const void *reference, Comparer compare)
 
   return index;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+int CONST (IndexOf)(const void *reference)
+{
+  return ObjectArray_indexOf(this, reference, ObjectArray_comparer(this), Array_At);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int CONST (BaseIndexOf)(const void *reference)
+{
+  return ObjectArray_indexOf(this, reference, ObjectArray_baseComparer(this), Array_AtDeref);
+}
+
 
 #undef TYPENAME
