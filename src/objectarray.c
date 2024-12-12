@@ -233,12 +233,12 @@ Comparer CONST (baseComparer)()
 }
 
 /******************************************************************************/
-void *CONST (in)(const void *reference, Comparer compare,  void *(*at)(const Array*, int))
+void *CONST (in)(const void *reference, Comparer compare)
 {
   void *found = NULL;
 
   for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = at(BASE(0), i);
+    void *against = Array_At(BASE(0), i);
 
     if (!compare(against, reference)) {
       found = against;
@@ -252,22 +252,22 @@ void *CONST (in)(const void *reference, Comparer compare,  void *(*at)(const Arr
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (In)(const void *reference)
 {
-  return ObjectArray_in(this, reference, ObjectArray_comparer(this), Array_At);
+  return ObjectArray_in(this, reference, ObjectArray_comparer(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (BaseIn)(const void *reference)
 {
-  return ObjectArray_in(this, reference, ObjectArray_baseComparer(this), Array_AtDeref);
+  return ObjectArray_in(this, reference, ObjectArray_baseComparer(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int CONST (indexOf)(const void *reference, Comparer compare, void *(*at)(const Array*, int))
+int CONST (indexOf)(const void *reference, Comparer compare)
 {
   int index = -1;
 
   for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = at(BASE(0), i);
+    void *against = Array_At(BASE(0), i);
 
     if (!compare(against, reference)) {
       index = i;
@@ -281,13 +281,13 @@ int CONST (indexOf)(const void *reference, Comparer compare, void *(*at)(const A
 ////////////////////////////////////////////////////////////////////////////////
 int CONST (IndexOf)(const void *reference)
 {
-  return ObjectArray_indexOf(this, reference, ObjectArray_comparer(this), Array_At);
+  return ObjectArray_indexOf(this, reference, ObjectArray_comparer(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 int CONST (BaseIndexOf)(const void *reference)
 {
-  return ObjectArray_indexOf(this, reference, ObjectArray_baseComparer(this), Array_AtDeref);
+  return ObjectArray_indexOf(this, reference, ObjectArray_baseComparer(this));
 }
 
 

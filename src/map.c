@@ -60,7 +60,7 @@ void _(BaseRemove)(const void *key) {
 }
 
 /******************************************************************************/
-Pair *CONST (at)(Comparer comparer, void *(*at)(const Array*, int), const void *key) {
+Pair *CONST (at)(Comparer comparer, const void *key) {
   Pair  *pair  = NULL;
 
   // Base 0: as ObjectArray
@@ -68,7 +68,7 @@ Pair *CONST (at)(Comparer comparer, void *(*at)(const Array*, int), const void *
   // Base 2: as void*
 
   for (int i = 0; i < BASE(1)->size; i++) {
-    Pair *current = at(BASE(1), i);
+    Pair *current = Array_At(BASE(1), i);
 
     if (!comparer(current->first.object, key))
     {
@@ -82,12 +82,12 @@ Pair *CONST (at)(Comparer comparer, void *(*at)(const Array*, int), const void *
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *CONST (At)(const void *key) {
-  return Map_at(this, this->comparer, Array_At, key);
+  return Map_at(this, this->comparer, key);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *CONST (BaseAt)(const void *key) {
-  return Map_at(this, this->baseComparer, Array_AtDeref, key);
+  return Map_at(this, this->baseComparer, key);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
