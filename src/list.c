@@ -65,15 +65,50 @@ int CONST (Size)()
   return 0;
 }
 
-void *CONST (Contains)(const void *element, Comparer compare)
+/******************************************************************************/
+Comparer CONST (comparer)()
+{
+  Comparer comparer = default_comparer;
+
+  if (this->object) {
+    comparer = IFNULL(virtual(gettype(List_Head(this)), "Comparer"), default_comparer);
+  }
+
+  return comparer;
+}
+
+/******************************************************************************/
+Comparer CONST (keyComparer)()
+{
+  Comparer comparer = default_comparer;
+
+  if (this->object) {
+    comparer = IFNULL(virtual(gettype(List_Head(this)), "KeyComparer"), default_key_comparer);
+  }
+
+  return comparer;
+}
+
+void *CONST (Contains)(const void *element)
 {
   void *head = List_Head(this);
   void *next = List_Next(this);
 
-  if (!next)                   return NULL;
-  if (!compare(head, element)) return head;
+  if (!next)                           return NULL;
+  if (!List_comparer(this)(head, element)) return head;
 
-  return List_Contains(next, element, compare);
+  return List_Contains(next, element);
+}
+
+void *CONST (ContainsKey)(const void *element)
+{
+  void *head = List_Head(this);
+  void *next = List_Next(this);
+
+  if (!next)                           return NULL;
+  if (!List_keyComparer(this)(head, element)) return head;
+
+  return List_Contains(next, element);
 }
 
 List *CONST (Push)(const void *element, int object)

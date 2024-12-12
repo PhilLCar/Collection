@@ -22,7 +22,8 @@ int   CONST (Empty)();
 
 void *CONST (At)(int index);
 int   CONST (Size)();
-void *CONST (Contains)(const void *element, Comparer compare);
+void *CONST (Contains)(const void *element);
+void *CONST (ContainsKey)(const void *key);
 
 List *CONST (Push)(const void *element, int object);
 
