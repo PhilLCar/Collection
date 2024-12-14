@@ -15,17 +15,17 @@ OBJECT () INHERIT (Pair)
   int object;
 END_OBJECT();
 
-void *CONST (Head)();
-List *CONST (Next)();
+void   *CONST (Head)();
+List   *CONST (Next)();
 
-int   CONST (Empty)();
+int     CONST (Empty)();
 
-void *CONST (At)(int index);
-int   CONST (Size)();
-void *CONST (Contains)(const void *element);
-void *CONST (ContainsKey)(const void *key);
+void   *CONST (At)(int index);
+int     CONST (Size)();
+void   *CONST (Contains)(const void *element);
+void   *CONST (ContainsKey)(const void *key);
 
-List *CONST (Push)(const void *element, int object);
+List   *CONST (Push)(const void *element, int object);
 
 List *_(Fill)(int objects, ...);
 

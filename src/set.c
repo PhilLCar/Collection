@@ -40,4 +40,8 @@ void *_(Add)(void *data)
   return ObjectArray_Push(BASE(0), data);
 }
 
+// TODO: Union
+// TODO: Intersect
+// TODO: etc...
+
 #undef TYPENAME

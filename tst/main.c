@@ -7,6 +7,8 @@
 #include <set.h>
 #include <list.h>
 #include <diagnostic.h>
+#include <print.h>
+#include <collection.str.h>
 
 void array_tests()
 {
@@ -23,6 +25,8 @@ void array_tests()
   Array_Push(test, &a);
   Array_Push(test, &b);
   Array_Push(test, &c);
+
+  print("%[%d]O\n", test);
 
   printf("Size: %d\n", test->size);
 
@@ -260,12 +264,18 @@ void list_tests()
 
 int main(void)
 {
-  array_tests();
-  object_array_tests();
-  pair_tests();
-  map_tests();
-  set_tests();
-  list_tests();
+  // array_tests();
+  // object_array_tests();
+  // pair_tests();
+  // map_tests();
+  // set_tests();
+  // list_tests();
+
+  int a = 1, b = 2, c = 3;
+
+  List *test = List_Fill(NEW (List) (), 0, &a, &b, &c, NULL);
+
+  print("%[%d]Of\n", test);
 
   STOP_WATCHING
 

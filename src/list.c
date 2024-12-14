@@ -2,6 +2,7 @@
 
 #define TYPENAME List
 
+////////////////////////////////////////////////////////////////////////////////
 List *_(Construct)()
 {
   if (Pair_Construct(BASE(0), TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(void*)))) {
@@ -13,6 +14,7 @@ List *_(Construct)()
   return this;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void _(Destruct)()
 {
   if (this) {
@@ -30,6 +32,7 @@ void _(Destruct)()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void *CONST (Head)()
 {
   return Pair_FDeref(BASE(0));
@@ -40,11 +43,13 @@ List *CONST (Next)()
   return Pair_SDeref(BASE(0));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 int CONST (Empty)()
 {
   return !List_Next(this);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void *CONST (At)(int index)
 {
   if (index) {
@@ -56,6 +61,7 @@ void *CONST (At)(int index)
   return List_Head(this);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 int CONST (Size)()
 {
   List *next = List_Next(this);
@@ -89,6 +95,7 @@ Comparer CONST (keyComparer)()
   return comparer;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void *CONST (Contains)(const void *element)
 {
   void *head = List_Head(this);
@@ -100,6 +107,7 @@ void *CONST (Contains)(const void *element)
   return List_Contains(next, element);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void *CONST (ContainsKey)(const void *element)
 {
   void *head = List_Head(this);
@@ -111,6 +119,7 @@ void *CONST (ContainsKey)(const void *element)
   return List_Contains(next, element);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 List *CONST (Push)(const void *element, int object)
 {
   List *list = NEW (List)();
@@ -151,6 +160,7 @@ void _(alloc)(void** object)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 List *_(Pop)(void **object)
 {
   List *next = List_Next(this);
@@ -163,6 +173,7 @@ List *_(Pop)(void **object)
   return next;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 List *_(Add)(const void *element)
 {
   List *next = List_Next(this);
@@ -179,6 +190,7 @@ List *_(Add)(const void *element)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void _(Remove)(void **object) 
 {
   List *next = List_Next(this);
@@ -194,6 +206,7 @@ void _(Remove)(void **object)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 List *_(Set)(int index, const void *element)
 {
   if (!index) {
@@ -211,6 +224,7 @@ List *_(Set)(int index, const void *element)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 List *_(Insert)(int index, const void *element)
 {
   List *next = List_Next(this);
@@ -234,6 +248,7 @@ List *_(Insert)(int index, const void *element)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void _(RemoveAt)(int index, void **object)
 {
     List *next = List_Next(this);
@@ -254,6 +269,7 @@ void _(RemoveAt)(int index, void **object)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void _(Merge)(List *other)
 {
   List *next = List_Next(this);
