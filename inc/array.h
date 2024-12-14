@@ -20,7 +20,7 @@ OBJECT (size_t element_size) BASED (void*)
 END_OBJECT(sizeof(void*));
 
 // Fills the array with values
-Array *_(Fill)(...);
+Array *STATIC (Fill)(size_t element_size, int number, const void *elements);
 
 // Sets the capacity of the array to the desired value. Truncates if necessary.
 int    _(Recap)(int newCap);

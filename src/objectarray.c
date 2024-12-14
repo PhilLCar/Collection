@@ -35,18 +35,15 @@ void _(Destruct)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ObjectArray *_(Fill)(...)
+ObjectArray *STATIC (Fill)(const Type *type, int number, void *elements[number])
 {
-  void    *arg;
-  va_list  args;
-
-  va_start(args, this);
-  while ((arg = va_arg(args, void*))) {
-    ObjectArray_Push(this, arg);
+  ObjectArray *result = NEW (ObjectArray)(type);
+  
+  for (int i = 0; i < number; i++) {
+    ObjectArray_Push(result, elements[i]);
   }
-  va_end(args);
 
-  return this;
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

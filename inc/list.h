@@ -27,7 +27,7 @@ void   *CONST (ContainsKey)(const void *key);
 
 List   *CONST (Push)(const void *element, int object);
 
-List *_(Fill)(int objects, ...);
+List *STATIC (Fill)(const Type *type, int number, const void *elements[number]);
 
 List *_(Pop)(void **object);
 

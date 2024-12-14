@@ -16,15 +16,9 @@ void array_tests()
 
   CHECK_MEMORY
 
-  Array *test = NEW (Array) (sizeof(int));
+  Array *test = Array_Fill((sizeof(int)), 3, (int[]){ 9, 1, 43 });
 
   CHECK_MEMORY
-
-  int a = 9, b = 1, c = 43;
-
-  Array_Push(test, &a);
-  Array_Push(test, &b);
-  Array_Push(test, &c);
 
   print("%[%d]O\n", test);
 
@@ -50,21 +44,15 @@ void object_array_tests()
 
   CHECK_MEMORY
 
-  ObjectArray *test = NEW (ObjectArray) (TYPEOF (Array));
+  Array *a = Array_Fill(sizeof(int), 3, (int[]){ 1, 2, 3 });
+  Array *b = Array_Fill(sizeof(int), 2, (int[]){ 33, 44 });
+  Array *c = Array_Fill(sizeof(int), 2, (int[]){ -7, -8});
+
+  ObjectArray *test = ObjectArray_Fill(TYPEOF(Array), 3, (void*[]){ a, b, c });
 
   CHECK_MEMORY
 
-  Array *a = NEW (Array) (sizeof(int)), *b = NEW (Array) (sizeof(int)), *c = NEW (Array) (sizeof(int));
-
-  int x = 1, y = 2, z = 4;
-
-  Array_Fill(a, &x, &y, &z, NULL);
-  Array_Fill(b, &x, &z, NULL);
-  Array_Fill(c, &y, &z, NULL);
-
-  ObjectArray_Fill(test, a, b, c, NULL);
-
-  CHECK_MEMORY
+  print("%[%(Array)[%d]O]O\n", test);
 
   Array *tb = Array_At((Array*)test, 1);
 
@@ -96,15 +84,13 @@ void object_array_tests()
 
 void pair_tests()
 {
-  int x = 1, y = 2, z =3;
-
   printf("%s\n", "PAIR TESTS:");
 
   CHECK_MEMORY
 
-  Array *a = Array_Fill(NEW (Array) (sizeof(int)), &x, &y, NULL), 
-        *b = Array_Fill(NEW (Array) (sizeof(int)), &x, &z, NULL),
-        *c = Array_Fill(NEW (Array) (sizeof(int)), &y, &z, NULL);
+  Array *a = Array_Fill(sizeof(int), 3, (int[]){ 1, 2, 3 }), 
+        *b = Array_Fill(sizeof(int), 3, (int[]){ 4, 5, 6 }),
+        *c = Array_Fill(sizeof(int), 3, (int[]){ 7, 8, 9 });
 
   CHECK_MEMORY
 
@@ -114,6 +100,8 @@ void pair_tests()
 
   a = Pair_SetF(p, a);
   b = Pair_SetS(p, b);
+
+  print("%[%[%d]O:%[%d]O]O\n", p);
 
   printf("Pop (a): %d\n", *(int*)Array_Pop(a));
   printf("Rem (b): %d\n", *(int*)Array_Remove(b));
@@ -137,16 +125,14 @@ int array_comparer(Array *a, Array *b)
 
 void map_tests()
 {
-  int w = 0, x = 1, y = 2, z =3;
-
   printf("%s\n", "MAP TESTS:");
 
   CHECK_MEMORY
 
-  Array *a = Array_Fill(NEW (Array) (sizeof(int)), &w, &x, NULL), 
-        *b = Array_Fill(NEW (Array) (sizeof(int)), &x, &y, NULL),
-        *c = Array_Fill(NEW (Array) (sizeof(int)), &y, &z, NULL),
-        *d = Array_Fill(NEW (Array) (sizeof(int)), &z, &w, NULL);
+  Array *a = Array_Fill(sizeof(int), 2, (int[]){ 0, 1 }), 
+        *b = Array_Fill(sizeof(int), 2, (int[]){ 1, 2 }),
+        *c = Array_Fill(sizeof(int), 2, (int[]){ 2, 3 }),
+        *d = Array_Fill(sizeof(int), 2, (int[]){ 3, 4 });
 
   CHECK_MEMORY
 
@@ -245,7 +231,7 @@ void list_tests()
     printf("%d: %d\n", i, *(int*)List_At(test, i));
   }
 
-  List *other = List_Fill(NEW (List)(), 0, &nb, &nc, &na, NULL);
+  List *other = List_Fill(TYPEOF(NATIVE(int)), 3, (const void*[]) { &nb, &nc, &na });
 
   List_Merge(test, other);
 
@@ -273,7 +259,7 @@ int main(void)
 
   int a = 1, b = 2, c = 3;
 
-  List *test = List_Fill(NEW (List) (), 0, &a, &b, &c, NULL);
+  List *test = List_Fill(TYPEOF(NATIVE(int)), 3, (const void*[]){ &a, &b, &c });
 
   print("%[%d]Of\n", test);
 

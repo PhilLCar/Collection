@@ -133,18 +133,11 @@ List *CONST (Push)(const void *element, int object)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *_(Fill)(int objects, ...)
+List *STATIC (Fill)(const Type *type, int number, const void *elements[number])
 {
-  void    *arg;
-  va_list  args;
-
-  va_start(args, objects);
-  while ((arg = va_arg(args, void*))) {
-    List_Add(this, arg)->object = objects;
-  }
-  va_end(args);
-
-  return this;
+  return number
+    ? List_Push(List_Fill(type, number - 1, elements + 1), elements[0], isobject(type))
+    : NEW (List) ();
 }
 
 void _(alloc)(void** object)

@@ -31,18 +31,14 @@ void _(Destruct)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Array *_(Fill)(...)
+Array *STATIC (Fill)(size_t element_size, int number, const void *elements)
 {
-  void    *arg;
-  va_list  args;
+  Array *result = NEW (Array) (element_size);
 
-  va_start(args, this);
-  while ((arg = va_arg(args, void*))) {
-    Array_Push(this, arg);
-  }
-  va_end(args);
+  Array_Resize(result, number);
+  memcpy(result->base, elements, number * element_size);
 
-  return this;
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
