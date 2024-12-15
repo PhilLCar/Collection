@@ -203,9 +203,9 @@ void list_tests()
 
   int na = 1, nb = 2, nc = 3;
 
-  List_Add(test, &na);
-  List_Add(test, &nb);
-  List_Add(test, &nc);
+  List_AddValue(test, TYPEOF(int), &na);
+  List_AddValue(test, TYPEOF(int), &nb);
+  List_AddValue(test, TYPEOF(int), &nc);
 
   for (int i = 0; i < List_Size(test); i++)
   {
@@ -218,7 +218,7 @@ void list_tests()
 
   printf("Popped: %d\n", *pop);
 
-  //free(pop);
+  DELETE (pop);
 
   for (int i = 0; i < List_Size(test); i++)
   {
@@ -227,10 +227,18 @@ void list_tests()
 
   List *other = List_Fill(TYPEOF(int), 3, (void*[]) { &nb, &nc, &na });
 
+  print("%O\n", test);
+  print("%O\n", other);
+
   List_Merge(test, other);
 
-  List_RemoveAt(test, 3, NULL);
-  List_Insert(test, 2, &nc);
+  print("%O\n", test);
+
+  List_RemoveAt(test, 1, NULL);
+
+  print("%O\n", test);
+  
+  List_InsertValue(test, 2, TYPEOF(int), &nb);
 
   for (int i = 0; i < List_Size(test); i++)
   {
@@ -249,7 +257,7 @@ int main(void)
   // pair_tests();
   // map_tests();
   // set_tests();
-  // list_tests();
+  list_tests();
 
   // int a = 1, b = 2, c = 3;
 

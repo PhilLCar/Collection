@@ -179,7 +179,7 @@ List *_(SetValue)(int index, const Type *type, void *element)
 
     return this;
   } else {
-    return List_Set(BASE(0)->second, index - 1, element);
+    return List_SetValue(BASE(0)->second, index - 1, type, element);
   }
 }
 
@@ -194,17 +194,19 @@ List *_(InsertValue)(int index, const Type *type, void *element)
 {
   List *next = BASE(0)->second;
 
-  if (!index) {
+  if (index == 1) {
     List *insert = NEW (List)();
 
     Pair_SetValueF(&insert->base, type, element);
 
-    insert->base.second = BASE(0)->second;
-    BASE(0)->second     = this;
+    BASE(0)->second     = insert;
+    insert->base.second = next;
 
     return this;
+  } else if (!index) {
+    return List_PushValue(this, type, element);
   } else {
-    return List_Insert(next, index - 1, element);
+    return List_InsertValue(next, index - 1, type, element);
   }
 }
 
@@ -218,7 +220,6 @@ void _(RemoveAt)(int index, void **object)
 
     BASE(0)->second = next->base.second;
 
-    tfree(this);
     tfree(next);
   } else {
     List_RemoveAt(next, index - 1, object);
@@ -231,7 +232,10 @@ void _(Merge)(List *other)
   List *next = BASE(0)->second;
 
   if (!next) {
-    Pair_SetS(BASE(0), other);
+    BASE(0)->first  = other->base.first;
+    BASE(0)->second = other->base.second;
+
+    tfree(other);
   } else {
     List_Merge(next, other);
   }
