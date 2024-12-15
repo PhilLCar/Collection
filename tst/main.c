@@ -52,7 +52,8 @@ void object_array_tests()
 
   CHECK_MEMORY
 
-  print("%[%(Array)[%d]O]O\n", test);
+  //print("%[%(Array)[%d]O]O\n", test);
+  print("%O\n", test);
 
   Array *tb = Array_At((Array*)test, 1);
 
@@ -94,14 +95,14 @@ void pair_tests()
 
   CHECK_MEMORY
 
-  Pair *p = NEW (Pair) (TYPEOF (Array), TYPEOF (Array));
+  Pair *p = NEW (Pair) ();
 
   CHECK_MEMORY
 
   a = Pair_SetF(p, a);
   b = Pair_SetS(p, b);
 
-  print("%[%[%d]O:%[%d]O]O\n", p);
+  print("%O\n", p);
 
   printf("Pop (a): %d\n", *(int*)Array_Pop(a));
   printf("Rem (b): %d\n", *(int*)Array_Remove(b));
@@ -136,19 +137,19 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Map *m = NEW (Map) (TYPEOF (Array), TYPEOF (Array));
+  Map *m = NEW (Map) (TYPEOF(Array));
 
   m->comparer = (Comparer)array_comparer;
 
   CHECK_MEMORY
 
   Pair p1 = *Map_Set(m, a, b);
-  a = p1.first.object;
-  b = p1.second.object;
+  a = p1.first;
+  b = p1.second;
 
   Pair p2 = *Map_Set(m, c, d);
-  c = p2.first.object;
-  d = p2.second.object;
+  c = p2.first;
+  d = p2.second;
 
   CHECK_MEMORY
 
@@ -164,20 +165,13 @@ void map_tests()
   CHECK_MEMORY
 }
 
-int cmp(int *a, int *b)
-{
-  return *b - *a;
-}
-
 void set_tests()
 {
   printf("%s\n", "SET TESTS:");
 
   CHECK_MEMORY
 
-  Set *test = NEW (Set) (TYPEOF (NATIVE(int)));
-  
-  test->comparer = (Comparer)cmp;
+  Set *test = NEW (Set) (TYPEOF (int));
 
   int add = 0;
   Set_Add(test, &add);
@@ -231,7 +225,7 @@ void list_tests()
     printf("%d: %d\n", i, *(int*)List_At(test, i));
   }
 
-  List *other = List_Fill(TYPEOF(NATIVE(int)), 3, (const void*[]) { &nb, &nc, &na });
+  List *other = List_Fill(TYPEOF(int), 3, (void*[]) { &nb, &nc, &na });
 
   List_Merge(test, other);
 
@@ -257,11 +251,11 @@ int main(void)
   // set_tests();
   // list_tests();
 
-  int a = 1, b = 2, c = 3;
+  // int a = 1, b = 2, c = 3;
 
-  List *test = List_Fill(TYPEOF(NATIVE(int)), 3, (const void*[]){ &a, &b, &c });
+  // List *test = List_Fill(TYPEOF(NATIVE(int)), 3, (const void*[]){ &a, &b, &c });
 
-  print("%[%d]Of\n", test);
+  // print("%[%d]Of\n", test);
 
   STOP_WATCHING
 

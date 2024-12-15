@@ -2,58 +2,12 @@
 
 #define TYPENAME Pair
 
-/******************************************************************************/
-void STATIC (construct)(PairMember *member, const Type *type)
-{
-  member->type = type;
-
-  if (isobject(member->type)) {
-    member->object = talloc(member->type);
-    member->type->construct(member->object);
-  } else {
-    member->object = malloc(member->type->size);
-    memset(member->object, 0, member->type->size);
-  }
-}
-
-/******************************************************************************/
-void STATIC (destruct)(PairMember *member)
-{
-  if (member->object) {
-    if (isobject(member->type)) {
-      member->type->destruct(member->object);
-      tfree(member->object);
-    } else {
-      free(member->object);
-    }
-    member->object = NULL;
-  }
-}
-
-/******************************************************************************/
-void *STATIC (set)(PairMember *member, void *element)
-{
-  int object = isobject(member->type);
-
-  if (!object || sametype(member->type, gettype(element))) {
-    if (object) member->type->destruct(member->object);
-    memcpy(member->object, element, member->type->size);
-    if (object) tfree(element);
-  }
-
-  return member->object;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(Construct)(const Type *first, const Type *second)
+Pair *_(Construct)()
 {
   if (this) {    
-    Pair_construct(&this->first, first);
-    Pair_construct(&this->second, second);
-
-    if (!this->first.object || !this->second.object) {
-      THROW(NEW (MemoryAllocationException)());
-    }
+    this->first  = NULL;
+    this->second = NULL;
   } else {
     THROW(NEW (MemoryAllocationException)());
   }
@@ -65,20 +19,44 @@ Pair *_(Construct)(const Type *first, const Type *second)
 void _(Destruct)()
 {
   if (this) {
-    Pair_destruct(&this->first);
-    Pair_destruct(&this->second);
+    DELETE (this->first);
+    DELETE (this->second);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *STATIC (From)(void *first, void *second)
 {
-  Pair *pair = NEW (Pair) (gettype(first), gettype(second));
+  Pair *pair = NEW (Pair) ();
 
-  Pair_set(&pair->first,  first);
-  Pair_set(&pair->second, second);
+  Pair_SetF(pair, first);
+  Pair_SetS(pair, second);
 
   return pair;
+}
+
+/******************************************************************************/
+void *STATIC (set)(void **member, void *element)
+{
+  DELETE (*member);
+
+  return (*member = element);
+}
+
+/******************************************************************************/
+void *STATIC (setValue)(void **member, const Type *type, void *element)
+{
+  void *result = NULL;
+
+  if (isobject(type)) {
+    result = Pair_set(member, element);
+  } else {
+    result = talloc(type);
+    memcpy(result, element, type->size);
+    result = Pair_set(member, result);
+  }
+
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,21 +72,21 @@ void *_(SetS)(void *element)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(F)()
+void *_(SetValueF)(const Type *type, void *element)
 {
-  return this->first.object;
+  return Pair_setValue(&this->first, type, element);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(S)()
+void *_(SetValueS)(const Type *type, void *element)
 {
-  return this->second.object;
+  return Pair_setValue(&this->second, type, element);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (FDeref)()
 {
-  void **ptr = this->first.object;
+  void **ptr = this->first;
 
   return ptr ? *ptr : NULL;
 }
@@ -116,7 +94,7 @@ void *CONST (FDeref)()
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (SDeref)()
 {
-  void **ptr = this->second.object;
+  void **ptr = this->second;
   
   return ptr ? *ptr : NULL;
 }

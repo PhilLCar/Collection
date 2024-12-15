@@ -17,14 +17,14 @@
 // In maps, efficient comparison is essential
 // this is why we compute the comparer in the constructor here
 
-OBJECT (const Type *key, const Type *value) INHERIT (ObjectArray)
+OBJECT (const Type *key) INHERIT (ObjectArray)
   const Type *key;
-  const Type *value;
   Comparer    comparer;
   Comparer    keyComparer;
-END_OBJECT(TYPEOF (NATIVE(const char*)), TYPEOF (NATIVE(void*)));
+END_OBJECT(TYPEOF (const char*));
 
 Pair *_(Set)(void *key, void *value);
+Pair *_(SetValue)(void *key, const Type *valueType, void *value);
 void  _(Remove)(const void *key);
 void  _(RemoveKey)(const void *key);
 

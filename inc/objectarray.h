@@ -9,22 +9,17 @@
 // CUT
 #include <diagnostic.h>
 #include <oop.h>
+#include <exception.h>
 
 #include "array.h"
+#include "comparer.h"
 
 #define TYPENAME ObjectArray
-
-typedef int (*Comparer)(const void *against, const void *reference);
-
-// The comparer compares the object to another of the same type (for ordering)
-int default_comparer(const void *against, const void *reference);
-// The key comparer compares the object to a key (for binary search);
-int default_key_comparer(const void **against, const void *reference);
 
 OBJECT (const Type *type) INHERIT (Array)
   const Type *type;
   void       *buffer;
-END_OBJECT(TYPEOF (NATIVE(void*)));
+END_OBJECT(TYPEOF (void*));
 
 // Fills the array with values
 ObjectArray *STATIC (Fill)(const Type *type, int number, void *elements[number]);
@@ -59,7 +54,8 @@ int    _(RemoveRange)(int start, int range);
 // Clears the array
 void   _(Clear)();
 
-void *CONST (At)(int index);
+// Returns a copy of the object with type information present
+void  *CONST (At)(int index);
 
 // Returns a pointer to the element targeted if present
 void  *CONST (Contains)(const void *reference);

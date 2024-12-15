@@ -3,12 +3,11 @@
 #define TYPENAME Map
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(Construct)(const Type *key, const Type *value) {
+Map *_(Construct)(const Type *key) {
   if (ObjectArray_Construct(BASE(0), TYPEOF (Pair))) {
     this->key         = key;
-    this->value       = value;
-    this->comparer    = IFNULL(virtual(key, "Comparer"),    default_comparer);
-    this->keyComparer = IFNULL(virtual(key, "KeyComparer"), default_key_comparer);
+    this->comparer    = comparer(key);
+    this->keyComparer = key_comparer(key);
   }
   
   return this;
@@ -23,14 +22,15 @@ void _(Destruct)() {
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(Set)(void *key, void *value) {
-  Pair *current = Map_At(this, key);
+  return Map_SetValue(this, key, gettype(value), value);
+}
 
-  if (!current) {
-    current = ObjectArray_Push(BASE(0), NEW (Pair) (this->key, this->value));
-  }
+////////////////////////////////////////////////////////////////////////////////
+Pair *_(SetValue)(void *key, const Type *type, void *value) {
+  Pair *current = IFNULL(Map_At(this, key), ObjectArray_Push(BASE(0), NEW (Pair) ()));
 
-  Pair_SetF(current, key);
-  Pair_SetS(current, value);
+  Pair_SetValueF(current, this->key,   key);
+  Pair_SetValueS(current, type, value);
 
   return current;
 }
@@ -63,14 +63,10 @@ void _(RemoveKey)(const void *key) {
 Pair *CONST (at)(Comparer comparer, const void *key) {
   Pair  *pair  = NULL;
 
-  // Base 0: as ObjectArray
-  // Base 1: as Array
-  // Base 2: as void*
-
   for (int i = 0; i < BASE(1)->size; i++) {
     Pair *current = Array_At(BASE(1), i);
 
-    if (!comparer(current->first.object, key))
+    if (!comparer(current->first, key))
     {
       pair = current;
       break;
@@ -94,14 +90,14 @@ Pair *CONST (AtKey)(const void *key) {
 void *CONST (ValueAt)(const void *key) {
   Pair *p = Map_At(this, key);
   
-  return p ? p->second.object : NULL;
+  return p ? p->second : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAtKey)(const void *key) {
   Pair *p = Map_AtKey(this, key);
   
-  return p ? p->second.object : NULL;
+  return p ? p->second : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

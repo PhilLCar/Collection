@@ -5,104 +5,61 @@
 ////////////////////////////////////////////////////////////////////////////////
 List *_(Construct)()
 {
-  if (Pair_Construct(BASE(0), TYPEOF (NATIVE(void*)), TYPEOF (NATIVE(void*)))) {
-    // default
-    this->object = 0;
-  }
-  
-  // Empty list
-  return this;
+  return (List*)Pair_Construct(BASE(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(Destruct)()
 {
   if (this) {
-    List *next = List_Next(this);
-    void *head = List_Head(this);
-
-    DELETE (next);
-
-    if (this->object)
-    {
-      DELETE (head);
-    }
-
     Pair_Destruct(BASE(0));
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *CONST (Head)()
-{
-  return Pair_FDeref(BASE(0));
-}
-
-List *CONST (Next)()
-{
-  return Pair_SDeref(BASE(0));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 int CONST (Empty)()
 {
-  return !List_Next(this);
+  return !BASE(0)->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (At)(int index)
 {
   if (index) {
-    List *next = List_Next(this);
-
-    return List_At(next , index - 1);
+    return List_At(BASE(0)->second, index - 1);
   }
 
-  return List_Head(this);
+  return BASE(0)->first;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *CONST (AtDeref)(int index)
+{
+  void **at = List_At(this, index);
+
+  return at ? *at : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 int CONST (Size)()
 {
-  List *next = List_Next(this);
+  List *next = BASE(0)->second;
    
   if (next) return 1 + List_Size(next);
 
   return 0;
 }
 
-/******************************************************************************/
-Comparer CONST (comparer)()
-{
-  Comparer comparer = default_comparer;
-
-  if (this->object) {
-    comparer = IFNULL(virtual(gettype(List_Head(this)), "Comparer"), default_comparer);
-  }
-
-  return comparer;
-}
-
-/******************************************************************************/
-Comparer CONST (keyComparer)()
-{
-  Comparer comparer = default_comparer;
-
-  if (this->object) {
-    comparer = IFNULL(virtual(gettype(List_Head(this)), "KeyComparer"), default_key_comparer);
-  }
-
-  return comparer;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (Contains)(const void *element)
 {
-  void *head = List_Head(this);
-  void *next = List_Next(this);
+  void *head = BASE(0)->first;
+  void *next = BASE(0)->second;
 
-  if (!next)                           return NULL;
-  if (!List_comparer(this)(head, element)) return head;
+  const Type *type = gettype(head);
+
+  if (!next)                              return NULL;
+  else if (comparer(type)(head, element)) return head;
 
   return List_Contains(next, element);
 }
@@ -110,130 +67,140 @@ void *CONST (Contains)(const void *element)
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ContainsKey)(const void *element)
 {
-  void *head = List_Head(this);
-  void *next = List_Next(this);
+  void *head = BASE(0)->first;
+  void *next = BASE(0)->second;
 
-  if (!next)                           return NULL;
-  if (!List_keyComparer(this)(head, element)) return head;
+  const Type *type = gettype(head);
 
-  return List_Contains(next, element);
+  if (!next)                                  return NULL;
+  else if (key_comparer(type)(head, element)) return head;
+
+  return List_ContainsKey(next, element);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *CONST (Push)(const void *element, int object)
+List *CONST (Push)(void *element)
+{
+  return List_PushValue(this, gettype(element), element);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+List *CONST (PushValue)(const Type *type, void *element)
 {
   List *list = NEW (List)();
 
-  Pair_SetF((Pair*)list, &element);
-  Pair_SetS((Pair*)list, &this);
-
-  list->object = object;
+  Pair_SetValueF((Pair*)list, type, element);
+  
+  list->base.second = (void*)this;
 
   return list;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *STATIC (Fill)(const Type *type, int number, const void *elements[number])
+List *STATIC (Fill)(const Type *type, int number, void *elements[number])
 {
   return number
-    ? List_Push(List_Fill(type, number - 1, elements + 1), elements[0], isobject(type))
+    ? List_PushValue(List_Fill(type, number - 1, elements + 1), type, elements[0])
     : NEW (List) ();
 }
 
 void _(alloc)(void** object)
 {
+  void *obj = BASE(0)->first;
+
   if (object) {
-    *object = List_Head(this);
-
-    memset(BASE(0)->first.object, 0, sizeof(void*));
-  } else if (this->object) {
-    void *obj = List_Head(this);
-
+    *object = obj;
+  } else {
     DELETE (obj);
   }
+
+  BASE(0)->first = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 List *_(Pop)(void **object)
 {
-  List *next = List_Next(this);
+  List *next = BASE(0)->second;
 
   List_alloc(this, object);
-
-  Pair_Destruct(BASE(0));
   tfree(this);
 
   return next;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *_(Add)(const void *element)
+List *_(Add)(void *element)
 {
-  List *next = List_Next(this);
+  return List_AddValue(this, gettype(element), element);
+}
 
-  if (!next) {
-    next = NEW (List)();
+////////////////////////////////////////////////////////////////////////////////
+List *_(AddValue)(const Type *type, void *element)
+{
+  List *next = BASE(0)->second;
 
-    Pair_SetF(BASE(0), &element);
-    Pair_SetS(BASE(0), &next);
+  if (!next) {    
+    Pair_SetValueF(BASE(0), type, element);
+    BASE(0)->second = NEW (List) ();
 
     return this;
   } else {
-    return List_Add(next, element);
+    return List_AddValue(next, type, element);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(Remove)(void **object) 
 {
-  List *next = List_Next(this);
+  List *next = BASE(0)->second;
 
-  if (!List_Next(next)) {
-    List_alloc(this, object);
+  if (next) {
+    if (next->base.second) {
+      List_Remove(next, object);
+    } else {
+      List_alloc(this, object);
 
-    memset(BASE(0)->second.object, 0, sizeof(void*));
-
-    DELETE (next);
-  } else {
-    List_Remove(next, object);
+      DELETE (BASE(0)->second);
+    }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *_(Set)(int index, const void *element)
+List *_(Set)(int index, void *element)
+{
+  return List_SetValue(this, index, gettype(element), element);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+List *_(SetValue)(int index, const Type *type, void *element)
 {
   if (!index) {
-    if (this->object) {
-      void *object = List_Head(this);
-
-      DELETE (object);
-    }
-
-    Pair_SetF(BASE(0), &element);
+    Pair_SetValueF(BASE(0), type, element);
 
     return this;
   } else {
-    return List_Set(List_Next(this), index - 1, element);
+    return List_Set(BASE(0)->second, index - 1, element);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *_(Insert)(int index, const void *element)
+List *_(Insert)(int index, void *element)
 {
-  List *next = List_Next(this);
+  return List_InsertValue(this, index, gettype(element), element);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+List *_(InsertValue)(int index, const Type *type, void *element)
+{
+  List *next = BASE(0)->second;
 
   if (!index) {
     List *insert = NEW (List)();
-    void *head   = List_Head(this);
 
-    Pair_SetF(&insert->base, &head);
-    Pair_SetS(&insert->base, &next);
+    Pair_SetValueF(&insert->base, type, element);
 
-    insert->object = this->object;
-    this->object   = 0; // default
-
-    Pair_SetF(BASE(0), &element);
-    Pair_SetS(BASE(0), &insert);
+    insert->base.second = BASE(0)->second;
+    BASE(0)->second     = this;
 
     return this;
   } else {
@@ -244,18 +211,14 @@ List *_(Insert)(int index, const void *element)
 ////////////////////////////////////////////////////////////////////////////////
 void _(RemoveAt)(int index, void **object)
 {
-    List *next = List_Next(this);
+  List *next = BASE(0)->second;
 
   if (!index) {
-    void *head    = List_Head(next);
-    List *further = List_Next(next);
+    Pair_SetF(BASE(0), next->base.first);
 
-    List_alloc(this, object);
+    BASE(0)->second = next->base.second;
 
-    Pair_SetF(BASE(0), &head);
-    Pair_SetS(BASE(0), &further);
-
-    Pair_Destruct(&next->base);
+    tfree(this);
     tfree(next);
   } else {
     List_RemoveAt(next, index - 1, object);
@@ -265,18 +228,10 @@ void _(RemoveAt)(int index, void **object)
 ////////////////////////////////////////////////////////////////////////////////
 void _(Merge)(List *other)
 {
-  List *next = List_Next(this);
+  List *next = BASE(0)->second;
 
   if (!next) {
-    void *head = List_Head(other);
-
-    next = List_Next(other);
-
-    Pair_SetF(BASE(0), &head);
-    Pair_SetS(BASE(0), &next);
-
-    Pair_Destruct(&other->base);
-    tfree(other);
+    Pair_SetS(BASE(0), other);
   } else {
     List_Merge(next, other);
   }

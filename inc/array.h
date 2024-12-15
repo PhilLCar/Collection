@@ -13,7 +13,7 @@
 
 #define TYPENAME Array
 
-OBJECT (size_t element_size) BASED (void*)
+OBJECT (size_t element_size) INHERIT (void*)
   int     size;
   int     capacity;
   size_t  element_size;

@@ -3,17 +3,6 @@
 #define TYPENAME ObjectArray
 
 ////////////////////////////////////////////////////////////////////////////////
-int default_comparer(const void *against, const void *reference) {
-	return reference - against;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-int default_key_comparer(const void **against, const void *reference) {
-  // Assume the key is the first member of the object
-	return default_comparer(*against, reference);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 ObjectArray *_(Construct)(const Type *type)
 {
   if (Array_Construct(BASE(0), type->size)) {
@@ -75,10 +64,18 @@ int _(Resize)(int newSize)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Insert)(int index, void *data)
 {
-  void *insert = Array_Insert(BASE(0), index, data);
+  void       *insert   = NULL;
+  int         object   = isobject(this->type);
+  const Type *dataType = NULL;
+  
+  if (!object || sametype(this->type, (dataType = gettype(data)))) {
+    insert = Array_Insert(BASE(0), index, data);
 
-  if (isobject(this->type)) {
-    tfree(data);
+    if (isobject(this->type)) {
+      tfree(data);
+    }
+  } else {
+    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
   }
 
   return insert;
@@ -87,15 +84,18 @@ void *_(Insert)(int index, void *data)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Push)(void *data)
 {
-  void *pushed = NULL;
-  int   object = isobject(this->type);
+  void *      pushed   = NULL;
+  int         object   = isobject(this->type);
+  const Type *dataType = NULL;
 
-  if (!object || sametype(this->type, gettype(data))) {
+  if (!object || sametype(this->type, (dataType = gettype(data)))) {
     pushed = Array_Push(BASE(0), data);
 
     if (object) {
       tfree(data);
     }
+  } else {
+    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
   }
 
   return pushed;
@@ -108,20 +108,26 @@ void *_(Add)(void *data)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(Set)(int index, void *value)
+void *_(Set)(int index, void *data)
 {
-  void *set = NULL;
-  int   object = isobject(this->type);
+  void       *set = NULL;
+  int         object = isobject(this->type);
+  const Type *dataType = NULL;
 
   if (object) {
     this->type->destruct(Array_At(BASE(0), index));
   }
 
-  set = Array_Set(BASE(0), index, value);
+  if (!object || sametype(this->type, (dataType = gettype(data)))) {
+    set = Array_Set(BASE(0), index, data);
 
-  if (object) {
-    tfree(value);
+    if (object) {
+      tfree(data);
+    }
+  } else {
+    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
   }
+
 
   return set;
 }
@@ -219,18 +225,6 @@ void *CONST (At)(int index)
 }
 
 /******************************************************************************/
-Comparer CONST (comparer)()
-{
-  return IFNULL(virtual(this->type, "Comparer"), default_comparer);
-}
-
-/******************************************************************************/
-Comparer CONST (keyComparer)()
-{
-  return IFNULL(virtual(this->type, "KeyComparer"), default_key_comparer);
-}
-
-/******************************************************************************/
 void *CONST (contains)(const void *reference, Comparer compare)
 {
   void *found = NULL;
@@ -250,13 +244,13 @@ void *CONST (contains)(const void *reference, Comparer compare)
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (Contains)(const void *reference)
 {
-  return ObjectArray_contains(this, reference, ObjectArray_comparer(this));
+  return ObjectArray_contains(this, reference, comparer(this->type));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ContainsKey)(const void *reference)
 {
-  return ObjectArray_contains(this, reference, ObjectArray_keyComparer(this));
+  return ObjectArray_contains(this, reference, key_comparer(this->type));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -279,13 +273,13 @@ int CONST (indexOf)(const void *reference, Comparer compare)
 ////////////////////////////////////////////////////////////////////////////////
 int CONST (IndexOf)(const void *reference)
 {
-  return ObjectArray_indexOf(this, reference, ObjectArray_comparer(this));
+  return ObjectArray_indexOf(this, reference, comparer(this->type));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 int CONST (IndexOfKey)(const void *reference)
 {
-  return ObjectArray_indexOf(this, reference, ObjectArray_keyComparer(this));
+  return ObjectArray_indexOf(this, reference, key_comparer(this->type));
 }
 
 

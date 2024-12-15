@@ -63,13 +63,14 @@ ObjectArray *_(Split)(const char *other)
 #define TYPENAME Array
 
 ////////////////////////////////////////////////////////////////////////////////
-String *CONST (ToString) (const char *format)
+String *CONST (ToStringFormat) (const char *format)
 {
   String *result = NEW (String) ("[");
 
   for (int i = 0; i < this->size; i++) {
     String *item;
 
+    // TODO: Not entirely sure this is the best approach
     switch (_which_format(format)) {
       case FORMAT_FLOAT:
         item = String_Format(format, *(double*)Array_At(this, i));
@@ -82,14 +83,8 @@ String *CONST (ToString) (const char *format)
         item = String_Format(format, Array_AtDeref(this, i));
         break;
     }
-
-    if (i == this->size - 1) {
-      item = String_Format(" %Of ", item);
-    } else {
-      item = String_Format(" %Of,", item);
-    }
-
-    String_Concat(result, item);
+    
+    String_Concat(result, String_Format(i == this->size - 1 ? " %Of " : " %Of,", item));
   }
 
   String_Cat(result, "]");
@@ -118,52 +113,34 @@ String *_(Join)(const char *link)
   return string;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+String *CONST (ToString) ()
+{
+  String *result = NEW (String) ("[");
+
+  for (int i = 0; i < BASE(0)->size; i++) {
+    String *item = String_ToStringType(Array_At(BASE(0), i), this->type);
+
+    String_Concat(result, String_Format(i == BASE(0)->size - 1 ? " %Of " : " %Of,", item));
+  }
+
+  String_Cat(result, "]");
+
+  return result;
+}
+
 #undef TYPENAME
 
 #define TYPENAME Pair
 
-/******************************************************************************/
-String *STATIC (toStringMember)(const PairMember *member, const char *format)
-{
-  String *item;
-
-  switch (_which_format(format)) {
-    case FORMAT_FLOAT:
-      item = String_Format(format, *(double*)member->object);
-      break;
-    case FORMAT_PTR:
-      item = String_Format(format, member->object);
-      break;
-    case FORMAT_ANY:
-    default:
-      item = String_Format(format, member->object ? *(void**)member->object : NULL);
-      break;
-  }
-
-  return item;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-String *CONST (ToString) (const char *format)
+String *CONST (ToString) ()
 {
-  String *result = NEW (String) ("( ");
-
-  char *first = malloc(strlen(format) + 1);
-
-  strcpy(first, format);
-
-  char *second = strstr(first, ":");
-
-  *(second++) = 0;
-
-  String_Concat(result, Pair_toStringMember(&this->first, first));
-  String_Cat(result, " : ");
-  String_Concat(result, Pair_toStringMember(&this->second, second));
-  String_Cat(result, " )");
-
-  free(first);
-
-  return result;
+  return String_Format("( %Of : %Of )", 
+      String_ToString(this->first),
+      String_ToString(this->second)
+    );
 }
 
 #undef TYPENAME
@@ -175,13 +152,13 @@ String *CONST (toString) (const char *format)
 {
   if (List_Empty(this)) {
     return NEW (String) (")");
-  } else if (List_Empty(List_Next(this))) {
-    return String_Format(" %O )", Pair_toStringMember(&BASE(0)->first, format));
+  } else if (List_Empty(BASE(0)->second)) {
+    return String_Format(" %Of )", String_ToString(BASE(0)->first));
   }
   
   return String_Concat(
-    String_Format(" %Of,", Pair_toStringMember(&BASE(0)->first, format)),
-    List_toString(List_Next(this), format));
+    String_Format(" %Of,", String_ToString(BASE(0)->first)),
+    List_toString(BASE(0)->second, format));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,7 @@
 Set *_(Construct)(const Type *type)
 {
   if (ObjectArray_Construct(BASE(0), type)) {
-    this->comparer = IFNULL(virtual(type, "Comparer"), default_comparer);
+    this->comparer = comparer(type);
   }
 
   return this;

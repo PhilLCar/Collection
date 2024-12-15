@@ -21,7 +21,7 @@ ObjectArray *_(Split)(const char *other);
 
 #define TYPENAME Array
 
-String *CONST (ToString) (const char *format) VIRTUAL (ToString);
+String *CONST (ToStringFormat) (const char *format) VIRTUAL (ToStringFormat);
 
 #undef TYPENAME
 
@@ -29,19 +29,25 @@ String *CONST (ToString) (const char *format) VIRTUAL (ToString);
 
 String *_(Join)(const char *link);
 
-FOREIGN_VIRTUAL(ToString, Array_ToString);
+String *CONST (ToString) () VIRTUAL (ToString);
 
 #undef TYPENAME
 
 #define TYPENAME Pair
 
-String *CONST (ToString) (const char *format) VIRTUAL (ToString);
+String *CONST (ToString) () VIRTUAL (ToString);
 
 #undef TYPENAME
 
 #define TYPENAME Map
 
-FOREIGN_VIRTUAL(ToString, Array_ToString);
+FOREIGN_VIRTUAL(ToString, ObjectArray_ToString);
+
+#undef TYPENAME
+
+#define TYPENAME Set
+
+FOREIGN_VIRTUAL(ToString, ObjectArray_ToString);
 
 #undef TYPENAME
 
