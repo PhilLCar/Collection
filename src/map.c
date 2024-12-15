@@ -22,15 +22,15 @@ void _(Destruct)() {
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(Set)(void *key, void *value) {
-  return Map_SetValue(this, key, gettype(value), value);
+  return Map_SetValue(this, key, NULL, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(SetValue)(void *key, const Type *type, void *value) {
   Pair *current = IFNULL(Map_At(this, key), ObjectArray_Push(BASE(0), NEW (Pair) ()));
 
-  Pair_SetValueF(current, this->key,   key);
-  Pair_SetValueS(current, type, value);
+  Pair_SetValueF(current, this->key, key);
+  Pair_SetValueS(current, type,      value);
 
   return current;
 }

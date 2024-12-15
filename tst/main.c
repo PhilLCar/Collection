@@ -237,7 +237,7 @@ void list_tests()
   List_RemoveAt(test, 1, NULL);
 
   print("%O\n", test);
-  
+
   List_InsertValue(test, 2, TYPEOF(int), &nb);
 
   for (int i = 0; i < List_Size(test); i++)
@@ -252,11 +252,11 @@ void list_tests()
 
 int main(void)
 {
-  // array_tests();
-  // object_array_tests();
-  // pair_tests();
-  // map_tests();
-  // set_tests();
+  array_tests();
+  object_array_tests();
+  pair_tests();
+  map_tests();
+  set_tests();
   list_tests();
 
   // int a = 1, b = 2, c = 3;

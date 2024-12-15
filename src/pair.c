@@ -48,7 +48,7 @@ void *STATIC (setValue)(void **member, const Type *type, void *element)
 {
   void *result = NULL;
 
-  if (isobject(type)) {
+  if (!type || isobject(type)) {
     result = Pair_set(member, element);
   } else {
     result = talloc(type);
