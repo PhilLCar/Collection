@@ -15,6 +15,9 @@
 OBJECT () INHERIT (Pair)
 END_OBJECT();
 
+void   *CONST (Head)();
+void   *CONST (HeadDeref)();
+void   *CONST (Next)();
 int     CONST (Empty)();
 
 void   *CONST (At)(int index);
