@@ -9,6 +9,7 @@
 #include <diagnostic.h>
 #include <print.h>
 #include <collection.str.h>
+#include <iterator.h>
 
 void array_tests()
 {
@@ -250,6 +251,16 @@ void list_tests()
   CHECK_MEMORY
 }
 
+void iterate(void *collection)
+{
+  for (Iterator *it = NEW (Iterator)(collection); !done(it); next(it))
+  {
+    int *number = it->base;
+
+    printf("%d\n", *number);
+  }
+}
+
 int main(void)
 {
   array_tests();
@@ -259,12 +270,17 @@ int main(void)
   set_tests();
   list_tests();
 
-  // int a = 1, b = 2, c = 3;
+  int a = 1, b = 2, c = 3;
 
-  // List *test = List_Fill(TYPEOF(NATIVE(int)), 3, (const void*[]){ &a, &b, &c });
+  List        *list  = List_Fill       (TYPEOF(int), 3, (void*[]){ &a, &b, &c });
+  ObjectArray *array = ObjectArray_Fill(TYPEOF(int), 3, (void*[]){ &a, &b, &c });
 
-  // print("%[%d]Of\n", test);
+  iterate(list);
+  print("%Of\n", list);
+  iterate(array);
+  print("%Of\n", array);
 
+  CHECK_MEMORY
   STOP_WATCHING
 
   return 0;

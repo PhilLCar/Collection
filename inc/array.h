@@ -11,6 +11,8 @@
 #include <oop.h>
 #include <exception.h>
 
+#include "iterator.h"
+
 #define TYPENAME Array
 
 OBJECT (size_t element_size) INHERIT (void*)
@@ -93,6 +95,9 @@ void  *CONST (ContainsDeref)(const void *element);
 
 // Returns the index of the element targeted
 int    CONST (IndexOf)(const void *element);
+
+// Returns the iterator associated with the array
+void _(Iterator)(Iterator *iterator) VIRTUAL (Iterator);
 
 #undef TYPENAME
 #endif

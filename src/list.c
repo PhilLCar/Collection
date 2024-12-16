@@ -261,5 +261,28 @@ void _(Merge)(List *other)
   }
 }
 
+/******************************************************************************/
+int STATIC(done)(Iterator *iterator)
+{
+  return List_Empty(iterator->collection);
+}
+
+/******************************************************************************/
+void STATIC(next)(Iterator *iterator)
+{
+  iterator->collection = List_Next(iterator->collection);
+  iterator->base       = List_Head(iterator->collection);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(Iterator)(Iterator *iterator)
+{
+  iterator->base       = List_Head(this);
+  iterator->collection = this;
+  iterator->env        = NULL;
+  iterator->done       = List_done;
+  iterator->next       = List_next;
+  iterator->end        = NULL;
+}
 
 #undef TYPENAME

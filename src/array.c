@@ -368,4 +368,35 @@ int CONST (IndexOf)(const void *data)
   return index;
 }
 
+/******************************************************************************/
+int STATIC(done)(Iterator *iterator)
+{
+  return (*(int*)iterator->env) >= ((Array*)iterator->collection)->size;
+}
+
+/******************************************************************************/
+void STATIC(next)(Iterator *iterator)
+{
+  iterator->base = Array_At(iterator->collection, ++*((int*)iterator->env));
+}
+
+/******************************************************************************/
+void STATIC(end)(Iterator *iterator)
+{
+  free(iterator->env);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(Iterator)(Iterator *iterator)
+{
+  iterator->base       = Array_At(this, 0);
+  iterator->collection = this;
+  iterator->env        = malloc(sizeof(int));
+  iterator->done       = Array_done;
+  iterator->next       = Array_next;
+  iterator->end        = Array_end;
+
+  *((int*)iterator->env) = 0;
+}
+
 #undef TYPENAME

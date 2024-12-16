@@ -282,5 +282,35 @@ int CONST (IndexOfKey)(const void *reference)
   return ObjectArray_indexOf(this, reference, key_comparer(this->type));
 }
 
+/******************************************************************************/
+int STATIC(done)(Iterator *iterator)
+{
+  return (*(int*)iterator->env) >= ((Array*)iterator->collection)->size;
+}
+
+/******************************************************************************/
+void STATIC(next)(Iterator *iterator)
+{
+  ObjectArray_At(iterator->collection, ++*((int*)iterator->env));
+}
+
+/******************************************************************************/
+void STATIC(end)(Iterator *iterator)
+{
+  free(iterator->env);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(Iterator)(Iterator *iterator)
+{
+  iterator->base       = ObjectArray_At(this, 0);
+  iterator->collection = this;
+  iterator->env        = malloc(sizeof(int));
+  iterator->done       = ObjectArray_done;
+  iterator->next       = ObjectArray_next;
+  iterator->end        = ObjectArray_end;
+
+  *((int*)iterator->env) = 0;
+}
 
 #undef TYPENAME

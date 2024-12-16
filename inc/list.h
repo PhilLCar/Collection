@@ -9,6 +9,7 @@
 
 #include "pair.h"
 #include "comparer.h"
+#include "iterator.h"
 
 #define TYPENAME List
 
@@ -47,6 +48,8 @@ List *_(InsertValue)(int index, const Type *type, void *element);
 void  _(RemoveAt)(int index, void **object);
 
 void _(Merge)(List *other);
+
+void _(Iterator)(Iterator *iterator) VIRTUAL (Iterator);
 
 #undef TYPENAME
 #endif

@@ -69,5 +69,8 @@ int    CONST (IndexOf)(const void *reference);
 // Returns the index of the element that contains the targeted base
 int    CONST (IndexOfKey)(const void *reference);
 
+// Returns the iterator associated with the array
+void _(Iterator)(Iterator *iterator) VIRTUAL (Iterator);
+
 #undef TYPENAME
 #endif
