@@ -83,8 +83,6 @@ Comparer key_comparer(const Type *type) {
   if (!key_comparer) {
     if (type->size >= sizeof(void*)) {
       key_comparer = (Comparer)_default_key_comparer;
-    } else {
-      THROW (NEW (Exception) ("There cannot be a key comparer on an object that is too small to contain a key! (%ld)", type->size));
     }
   }
 
