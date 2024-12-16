@@ -22,7 +22,7 @@ OBJECT (size_t element_size) INHERIT (void*)
 END_OBJECT(sizeof(void*));
 
 // Fills the array with values
-Array *STATIC (Fill)(size_t element_size, int number, const void *elements);
+Array *STATIC (From)(int number, size_t element_size, const void *elements);
 
 // Sets the capacity of the array to the desired value. Truncates if necessary.
 int    _(Recap)(int newCap);

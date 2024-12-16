@@ -117,11 +117,21 @@ List *CONST (PushValue)(const Type *type, void *element)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-List *STATIC (Fill)(const Type *type, int number, void *elements[number])
+List *_(Fill)(...)
 {
-  return number
-    ? List_PushValue(List_Fill(type, number - 1, elements + 1), type, elements[0])
-    : NEW (List) ();
+  va_list  argptr;
+  void    *current;
+  List    *last = this;
+
+  va_start(argptr, this);
+
+  while ((current = va_arg(argptr, void*))) {
+    last = List_Add(last, current);  
+  }
+
+  va_end(argptr);
+
+  return this;
 }
 
 void _(alloc)(void** object)

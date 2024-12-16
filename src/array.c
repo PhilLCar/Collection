@@ -31,7 +31,7 @@ void _(Destruct)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Array *STATIC (Fill)(size_t element_size, int number, const void *elements)
+Array *STATIC (From)(int number, size_t element_size, const void *elements)
 {
   Array *result = NEW (Array) (element_size);
 

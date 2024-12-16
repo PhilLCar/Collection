@@ -17,7 +17,7 @@ void array_tests()
 
   CHECK_MEMORY
 
-  Array *test = Array_Fill((sizeof(int)), 3, (int[]){ 9, 1, 43 });
+  Array *test = Array_From(3, sizeof(int), (int[]){ 9, 1, 43 });
 
   CHECK_MEMORY
 
@@ -45,11 +45,11 @@ void object_array_tests()
 
   CHECK_MEMORY
 
-  Array *a = Array_Fill(sizeof(int), 3, (int[]){ 1, 2, 3 });
-  Array *b = Array_Fill(sizeof(int), 2, (int[]){ 33, 44 });
-  Array *c = Array_Fill(sizeof(int), 2, (int[]){ -7, -8});
+  Array *a = Array_From(3, sizeof(int), (int[]){ 1, 2, 3 });
+  Array *b = Array_From(2, sizeof(int), (int[]){ 33, 44 });
+  Array *c = Array_From(2, sizeof(int), (int[]){ -7, -8});
 
-  ObjectArray *test = ObjectArray_Fill(TYPEOF(Array), 3, (void*[]){ a, b, c });
+  ObjectArray *test = ObjectArray_Fill(NEW (ObjectArray)(TYPEOF(Array)), a, b, c, NULL);
 
   CHECK_MEMORY
 
@@ -90,9 +90,9 @@ void pair_tests()
 
   CHECK_MEMORY
 
-  Array *a = Array_Fill(sizeof(int), 3, (int[]){ 1, 2, 3 }), 
-        *b = Array_Fill(sizeof(int), 3, (int[]){ 4, 5, 6 }),
-        *c = Array_Fill(sizeof(int), 3, (int[]){ 7, 8, 9 });
+  Array *a = Array_From(3, sizeof(int), (int[]){ 1, 2, 3 }), 
+        *b = Array_From(3, sizeof(int), (int[]){ 4, 5, 6 }),
+        *c = Array_From(3, sizeof(int), (int[]){ 7, 8, 9 });
 
   CHECK_MEMORY
 
@@ -131,10 +131,10 @@ void map_tests()
 
   CHECK_MEMORY
 
-  Array *a = Array_Fill(sizeof(int), 2, (int[]){ 0, 1 }), 
-        *b = Array_Fill(sizeof(int), 2, (int[]){ 1, 2 }),
-        *c = Array_Fill(sizeof(int), 2, (int[]){ 2, 3 }),
-        *d = Array_Fill(sizeof(int), 2, (int[]){ 3, 4 });
+  Array *a = Array_From(2, sizeof(int), (int[]){ 0, 1 }), 
+        *b = Array_From(2, sizeof(int), (int[]){ 1, 2 }),
+        *c = Array_From(2, sizeof(int), (int[]){ 2, 3 }),
+        *d = Array_From(2, sizeof(int), (int[]){ 3, 4 });
 
   CHECK_MEMORY
 
@@ -174,22 +174,13 @@ void set_tests()
 
   Set *test = NEW (Set) (TYPEOF (int));
 
-  int add = 0;
-  Set_Add(test, &add);
-  add = 3;
-  Set_Add(test, &add);
-  add = 1;
-  Set_Add(test, &add);
-  add = 0;
-  Set_Add(test, &add);
-  add = 2;
-  Set_Add(test, &add);
+  Set_Add(test, NEW (int)(0));
+  Set_Add(test, NEW (int)(3));
+  Set_Add(test, NEW (int)(1));
+  Set_Add(test, NEW (int)(0));
+  Set_Add(test, NEW (int)(2));
 
-  for (int i = 0; i < ((Array*)test)->size; i++) {
-    printf("%d : %d\n", i, *(int*)Array_At((Array*)test, i));
-  }
-
-  DELETE (test);
+  print("%Of\n", test);
 
   CHECK_MEMORY
 }
@@ -226,7 +217,7 @@ void list_tests()
     printf("%d: %d\n", i, *(int*)List_At(test, i));
   }
 
-  List *other = List_Fill(TYPEOF(int), 3, (void*[]) { &nb, &nc, &na });
+  List *other = List_Fill(NEW (List)(), NEW(int)(2), NEW(int)(3), NEW(int)(1), NULL);
 
   print("%O\n", test);
   print("%O\n", other);
@@ -270,10 +261,8 @@ int main(void)
   set_tests();
   list_tests();
 
-  int a = 1, b = 2, c = 3;
-
-  List        *list  = List_Fill       (TYPEOF(int), 3, (void*[]){ &a, &b, &c });
-  ObjectArray *array = ObjectArray_Fill(TYPEOF(int), 3, (void*[]){ &a, &b, &c });
+  List        *list  = List_Fill       (NEW (List)(),                   NEW(int)(1), NEW(int)(2), NEW(int)(3), NULL);
+  ObjectArray *array = ObjectArray_Fill(NEW (ObjectArray)(TYPEOF(int)), NEW(int)(1), NEW(int)(2), NEW(int)(3), NULL);
 
   iterate(list);
   print("%Of\n", list);

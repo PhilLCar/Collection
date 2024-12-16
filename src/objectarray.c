@@ -24,15 +24,20 @@ void _(Destruct)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ObjectArray *STATIC (Fill)(const Type *type, int number, void *elements[number])
+ObjectArray *_(Fill)(...)
 {
-  ObjectArray *result = NEW (ObjectArray)(type);
-  
-  for (int i = 0; i < number; i++) {
-    ObjectArray_Push(result, elements[i]);
+  va_list  argptr;
+  void    *current;
+
+  va_start(argptr, this);
+
+  while ((current = va_arg(argptr, void*))) {
+    ObjectArray_Push(this, current);  
   }
 
-  return result;
+  va_end(argptr);
+
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,15 +70,11 @@ int _(Resize)(int newSize)
 void *_(Insert)(int index, void *data)
 {
   void       *insert   = NULL;
-  int         object   = isobject(this->type);
   const Type *dataType = NULL;
   
-  if (!object || sametype(this->type, (dataType = gettype(data)))) {
+  if (sametype(this->type, (dataType = gettype(data)))) {
     insert = Array_Insert(BASE(0), index, data);
-
-    if (isobject(this->type)) {
-      tfree(data);
-    }
+    tfree(data);
   } else {
     THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
   }
@@ -81,19 +82,18 @@ void *_(Insert)(int index, void *data)
   return insert;
 }
 
+// TODO: PushValue, AddValue, InsertValue
+// TODO: Standardize Pop, Remove, etc
+
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Push)(void *data)
 {
   void *      pushed   = NULL;
-  int         object   = isobject(this->type);
   const Type *dataType = NULL;
 
-  if (!object || sametype(this->type, (dataType = gettype(data)))) {
+  if (sametype(this->type, (dataType = gettype(data)))) {
     pushed = Array_Push(BASE(0), data);
-
-    if (object) {
-      tfree(data);
-    }
+    tfree(data);
   } else {
     THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
   }
@@ -110,24 +110,19 @@ void *_(Add)(void *data)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Set)(int index, void *data)
 {
-  void       *set = NULL;
-  int         object = isobject(this->type);
+  void       *set      = NULL;
   const Type *dataType = NULL;
 
-  if (object) {
-    this->type->destruct(Array_At(BASE(0), index));
-  }
-
-  if (!object || sametype(this->type, (dataType = gettype(data)))) {
-    set = Array_Set(BASE(0), index, data);
-
-    if (object) {
-      tfree(data);
+  if (sametype(this->type, (dataType = gettype(data)))) {
+    if (isobject(this->type)) {
+      this->type->destruct(Array_At(BASE(0), index));
     }
+
+    set = Array_Set(BASE(0), index, data);
+    tfree(data);
   } else {
     THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
   }
-
 
   return set;
 }

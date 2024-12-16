@@ -30,7 +30,7 @@ void   *CONST (ContainsKey)(const void *key);
 List   *CONST (Push)(void *element);
 List   *CONST (PushValue)(const Type *type, void *element);
 
-List *STATIC (Fill)(const Type *type, int number, void *elements[number]);
+List *_(Fill)(...);
 
 List *_(Pop)(void **object);
 

@@ -22,7 +22,7 @@ OBJECT (const Type *type) INHERIT (Array)
 END_OBJECT(TYPEOF (void*));
 
 // Fills the array with values
-ObjectArray *STATIC (Fill)(const Type *type, int number, void *elements[number]);
+ObjectArray *_(Fill)(...);
 
 // Sets the size of the array to the desired value. Recaps if necessary.
 int    _(Resize)(int newSize);
