@@ -76,10 +76,8 @@ void *CONST (Contains)(const void *element)
   void *head = BASE(0)->first;
   void *next = BASE(0)->second;
 
-  const Type *type = gettype(head);
-
-  if (!next)                              return NULL;
-  else if (comparer(type)(head, element)) return head;
+  if (!next)                                       return NULL;
+  else if (comparer(gettype(head))(head, element)) return head;
 
   return List_Contains(next, element);
 }
@@ -90,10 +88,8 @@ void *CONST (ContainsKey)(const void *element)
   void *head = BASE(0)->first;
   void *next = BASE(0)->second;
 
-  const Type *type = gettype(head);
-
-  if (!next)                                  return NULL;
-  else if (key_comparer(type)(head, element)) return head;
+  if (!next)                                           return NULL;
+  else if (key_comparer(gettype(head))(head, element)) return head;
 
   return List_ContainsKey(next, element);
 }
