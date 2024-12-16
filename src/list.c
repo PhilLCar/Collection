@@ -274,6 +274,12 @@ void STATIC(next)(Iterator *iterator)
   iterator->base       = List_Head(iterator->collection);
 }
 
+/******************************************************************************/
+int STATIC(count)(Iterator *iterator)
+{
+  return List_Size(iterator->collection);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void _(Iterator)(Iterator *iterator)
 {
@@ -283,6 +289,7 @@ void _(Iterator)(Iterator *iterator)
   iterator->done       = List_done;
   iterator->next       = List_next;
   iterator->end        = NULL;
+  iterator->count      = List_count;
 }
 
 #undef TYPENAME

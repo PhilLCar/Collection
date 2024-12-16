@@ -283,22 +283,14 @@ int CONST (IndexOfKey)(const void *reference)
 }
 
 /******************************************************************************/
-int STATIC(done)(Iterator *iterator)
-{
-  return (*(int*)iterator->env) >= ((Array*)iterator->collection)->size;
-}
-
-/******************************************************************************/
 void STATIC(next)(Iterator *iterator)
 {
   ObjectArray_At(iterator->collection, ++*((int*)iterator->env));
 }
 
-/******************************************************************************/
-void STATIC(end)(Iterator *iterator)
-{
-  free(iterator->env);
-}
+int  Array_done(Iterator*);
+void Array_end(Iterator*);
+int  Array_count(Iterator*);
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(Iterator)(Iterator *iterator)
@@ -306,9 +298,10 @@ void _(Iterator)(Iterator *iterator)
   iterator->base       = ObjectArray_At(this, 0);
   iterator->collection = this;
   iterator->env        = malloc(sizeof(int));
-  iterator->done       = ObjectArray_done;
+  iterator->done       = Array_done;
   iterator->next       = ObjectArray_next;
-  iterator->end        = ObjectArray_end;
+  iterator->end        = Array_end;
+  iterator->count      = Array_count;
 
   *((int*)iterator->env) = 0;
 }

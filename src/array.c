@@ -386,6 +386,12 @@ void STATIC(end)(Iterator *iterator)
   free(iterator->env);
 }
 
+/******************************************************************************/
+int STATIC(count)(Iterator *iterator)
+{
+  return ((Array*)iterator->collection)->size;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void _(Iterator)(Iterator *iterator)
 {
@@ -395,6 +401,7 @@ void _(Iterator)(Iterator *iterator)
   iterator->done       = Array_done;
   iterator->next       = Array_next;
   iterator->end        = Array_end;
+  iterator->count      = Array_count;
 
   *((int*)iterator->env) = 0;
 }

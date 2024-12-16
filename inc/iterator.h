@@ -12,10 +12,12 @@ OBJECT (void *collection) INHERIT (void*)
   int   (*done)(Iterator *this);
   void  (*next)(Iterator *this);
   void  (*end)(Iterator *this);
+  int   (*count)(Iterator *this);
 END_OBJECT(NULL);
 
 int  done(Iterator *e);
 void next(Iterator *e);
+int  count(Iterator *e);
 
 #undef TYPENAME
 

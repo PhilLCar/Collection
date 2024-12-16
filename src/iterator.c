@@ -43,4 +43,9 @@ void next(Iterator *e)
   e->next(e);
 }
 
+int count(Iterator *e)
+{
+  return e->count(e);
+}
+
 #undef TYPENAME
