@@ -1,12 +1,12 @@
-#include <map.h>
+#include <mapset.h>
 
-#define TYPENAME Map
+#define TYPENAME MapSet
 
 ////////////////////////////////////////////////////////////////////////////////
-Map *_(Construct)(const Type *key) {
-  if (List_Construct(BASE(0))) {
-    this->comparer    = comparer(key);
-    this->keyComparer = key_comparer(key);
+MapSet *_(Construct)(const Type *key) {
+  if (Set_Construct(BASE(0), TYPEOF (KeyVal))) {
+    this->env.comparer    = comparer(key);
+    this->env.keyComparer = key_comparer(key);
   }
   
   return this;
@@ -14,22 +14,24 @@ Map *_(Construct)(const Type *key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(Destruct)() {
-  List_Destruct(BASE(0));
+  if (this) {
+    ObjectArray_Destruct(BASE(0));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(Set)(void *key, void *value) {
-  return Map_SetValue(this, key, NULL, value);
+KeyVal *_(Set)(void *key, void *value) {
+  return MapSet_SetValue(this, key, NULL, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(SetKey)(const void *key, void *value) {
-  return Map_SetKeyValue(this, key, NULL, value);
+KeyVal *_(SetKey)(const void *key, void *value) {
+  return MapSet_SetKeyValue(this, key, NULL, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(SetValue)(void *key, const Type *type, void *value) {
-  Pair *current = IFNULL(Map_At(this, key), List_Add(BASE(0), NEW (Pair) ()));
+KeyVal *_(SetValue)(void *key, const Type *type, void *value) {
+  Pair *current = IFNULL(MapSet_At(this, key), ObjectArray_Push(BASE(1), NEW (KeyVal) (&this->env)));
 
   Pair_SetF(current, key);
   Pair_SetValueS(current, type, value);
@@ -38,8 +40,8 @@ Pair *_(SetValue)(void *key, const Type *type, void *value) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *_(SetKeyValue)(const void *key, const Type *type, void *value) {
-  Pair *current = Map_AtKey(this, key);
+KeyVal *_(SetKeyValue)(const void *key, const Type *type, void *value) {
+  Pair *current = (Pair*)MapSet_AtKey(this, key);
 
   if (!current) {
     THROW (NEW (Exception) ("Cannot set key if record doesn't already exist! (try set instead)"));
@@ -51,79 +53,49 @@ Pair *_(SetKeyValue)(const void *key, const Type *type, void *value) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void STATIC (remove)(List *base, Comparer comparer, const void *key) {
-  Pair *head = base->base.first;
-  List *next = base->base.second;
-
-  if (head && !comparer(head->first, key)) {
-    Pair_SetF(&base->base, next->base.first);
-
-    base->base.second = next->base.second;
-
-    tfree(next);
-  } else {
-    Map_remove(next, comparer, key);
-  }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
 void _(Remove)(const void *key) {
-  return Map_remove(BASE(0), this->comparer, key);
+  Set_Remove(BASE(0), key, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(RemoveKey)(const void *key) {
-  return Map_remove(BASE(0), this->keyComparer, key);
-}
-
-/******************************************************************************/
-Pair *STATIC (at)(List *base, Comparer comparer, const void *key) {
-  Pair *head = base->base.first;
-  void *next = base->base.second;
-
-  if (!next)                           return NULL;
-  else if (comparer(head->first, key)) return head;
-
-  return Map_at(next, comparer, key);
+  Set_RemoveKey(BASE(0), key, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *CONST (At)(const void *key)
-{
-  return Map_at(BASE(0), this->comparer, key);
+KeyVal *CONST (At)(const void *key) {
+  return Array_At(BASE(2), Set_Contains(BASE(0), key));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Pair *CONST (AtKey)(const void *key)
-{
-  return Map_at(BASE(0), this->keyComparer, key);
+KeyVal *CONST (AtKey)(const void *key) {
+  return Array_At(BASE(2), Set_ContainsKey(BASE(0), key));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAt)(const void *key) {
-  Pair *p = (Pair*)Map_At(this, key);
+  Pair *p = (Pair*)MapSet_At(this, key);
   
   return p ? p->second : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAtKey)(const void *key) {
-  Pair *p = Map_AtKey(this, key);
+  Pair *p = (Pair*)MapSet_AtKey(this, key);
   
   return p ? p->second : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAtDeref)(const void *key) {
-  Pair *p = Map_At(this, key);
+  Pair *p = (Pair*)MapSet_At(this, key);
 
   return p ? Pair_SDeref(p) : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *CONST (ValueAtKeyDeref)(const void *key) {
-  Pair *p = Map_AtKey(this, key);
+  Pair *p = (Pair*)MapSet_AtKey(this, key);
 
   return p ? Pair_SDeref(p) : NULL;
 }

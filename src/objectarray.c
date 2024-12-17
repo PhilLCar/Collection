@@ -41,6 +41,23 @@ ObjectArray *_(Fill)(...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+ObjectArray *_(FillValues)(const Type *type, ...)
+{
+  va_list  argptr;
+  void    *current;
+
+  va_start(argptr, type);
+
+  while ((current = va_arg(argptr, void*))) {
+    ObjectArray_PushValues(this, type, current);  
+  }
+
+  va_end(argptr);
+
+  return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 int _(Resize)(int newSize)
 {
   int success = 1;
@@ -69,62 +86,102 @@ int _(Resize)(int newSize)
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Insert)(int index, void *data)
 {
-  void       *insert   = NULL;
-  const Type *dataType = NULL;
-  
-  if (sametype(this->type, (dataType = gettype(data)))) {
-    insert = Array_Insert(BASE(0), index, data);
-    tfree(data);
-  } else {
-    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
+  return ObjectArray_InsertValue(this, index, NULL, data);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(InsertValue)(int index, const Type *type, void *data)
+{
+  void *element = NULL;
+
+  if (ObjectArray_typecheck(this, type, data)) {
+    element = Array_Insert(BASE(0), index, data);
+
+    if (!type) tfree(data);
   }
 
-  return insert;
+  return element;
 }
 
 // TODO: PushValue, AddValue, InsertValue
 // TODO: Standardize Pop, Remove, etc
 
+/******************************************************************************/
+int _(typecheck)(const Type *type, void *data)
+{
+  int         result   = 1;
+  const Type *dataType = IFNULL(type, gettype(data));
+  
+  if (!sametype(this->type, dataType)) {
+    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
+    
+    result = 0;
+  }
+
+  return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Push)(void *data)
 {
-  void *      pushed   = NULL;
-  const Type *dataType = NULL;
+  return ObjectArray_PushValue(this, NULL, data);
+}
 
-  if (sametype(this->type, (dataType = gettype(data)))) {
-    pushed = Array_Push(BASE(0), data);
-    tfree(data);
-  } else {
-    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
+void *_(PushValue)(const Type *type, void *data)
+{
+  void *element = NULL;
+
+  if (ObjectArray_typecheck(this, type, data)) {
+    element = Array_Push(BASE(0), data);
+
+    if (!type) tfree(data);
   }
 
-  return pushed;
+  return element;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Add)(void *data)
 {
-  return ObjectArray_Insert(this, 0, data);
+  return ObjectArray_AddValue(this, NULL, data);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *_(AddValue)(const Type *type, void *data)
+{
+  void *element = NULL;
+
+  if (ObjectArray_typecheck(this, type, data)) {
+    element = Array_Add(BASE(0), data);
+
+    if (!type) tfree(data);
+  }
+
+  return element;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Set)(int index, void *data)
 {
-  void       *set      = NULL;
-  const Type *dataType = NULL;
+  return ObjectArray_SetValue(this, index, NULL, data);
+}
 
-  if (sametype(this->type, (dataType = gettype(data)))) {
+////////////////////////////////////////////////////////////////////////////////
+void *_(SetValue)(int index, const Type *type, void *data)
+{
+  void *element = NULL;
+
+  if (ObjectArray_typecheck(this, type, data)) {
     if (isobject(this->type)) {
       this->type->destruct(Array_At(BASE(0), index));
     }
 
-    set = Array_Set(BASE(0), index, data);
-    tfree(data);
-  } else {
-    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
+    element = Array_Set(BASE(0), index, data);
+
+    if (!type) tfree(data);
   }
 
-  return set;
+  return element;
 }
 
 /******************************************************************************/
@@ -154,7 +211,7 @@ void *_(RemoveAt)(int index, int get)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(Pop)(int get)
+void _(Pop)(int get)
 {
   void *popped = Array_Pop(BASE(0));
 

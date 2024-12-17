@@ -12,9 +12,18 @@
 
 OBJECT (const Type *type) INHERIT (ObjectArray)
   Comparer comparer;
+  Comparer keyComparer;
 END_OBJECT(TYPEOF (void*));
 
+int CONST (Contains)(const void *data);
+int CONST (ContainsKey)(const void *data);
+
 void *_(Add)(void *data);
+void *_(AddValue)(const Type *type, void *data);
+void *_(Remove)(const void *data, int get);
+void *_(RemoveKey)(const void *data, int get);
+Set  *_(Union)(Set *other);
+Set  *_(Intersect)(Set *other);
 
 #undef TYPENAME
 #endif

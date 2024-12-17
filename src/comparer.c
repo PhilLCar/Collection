@@ -78,13 +78,5 @@ Comparer comparer(const Type *type) {
 }
 
 Comparer key_comparer(const Type *type) {
-  Comparer key_comparer = (Comparer)virtual(type, "KeyComparer");
-
-  if (!key_comparer) {
-    if (type->size >= sizeof(void*)) {
-      key_comparer = (Comparer)_default_key_comparer;
-    }
-  }
-
-  return key_comparer;
+  return (Comparer)IFNULL(virtual(type, "KeyComparer"), comparer(type));
 }

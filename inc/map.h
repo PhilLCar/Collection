@@ -9,22 +9,23 @@
 #include <diagnostic.h>
 #include <oop.h>
 
-#include "objectarray.h"
-#include "pair.h"
+#include "list.h"
+#include "comparer.h"
 
 #define TYPENAME Map
 
 // In maps, efficient comparison is essential
 // this is why we compute the comparer in the constructor here
 
-OBJECT (const Type *key) INHERIT (ObjectArray)
-  const Type *key;
-  Comparer    comparer;
-  Comparer    keyComparer;
+OBJECT (const Type *key) INHERIT (List)
+  Comparer comparer;
+  Comparer keyComparer;
 END_OBJECT(TYPEOF (const char*));
 
 Pair *_(Set)(void *key, void *value);
+Pair *_(SetKey)(const void *key, void *value);
 Pair *_(SetValue)(void *key, const Type *valueType, void *value);
+Pair *_(SetKeyValue)(const void *key, const Type *valueType, void *value);
 void  _(Remove)(const void *key);
 void  _(RemoveKey)(const void *key);
 

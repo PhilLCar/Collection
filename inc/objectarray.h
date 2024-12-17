@@ -21,23 +21,38 @@ OBJECT (const Type *type) INHERIT (Array)
   void       *buffer;
 END_OBJECT(TYPEOF (void*));
 
-// Fills the array with values
+// Fills the array with objects
 ObjectArray *_(Fill)(...);
+
+// Fills the array with values
+ObjectArray *_(FillValues)(const Type *type, ...);
 
 // Sets the size of the array to the desired value. Recaps if necessary.
 int    _(Resize)(int newSize);
 
-// Inserts an element at index
+// Inserts an object at index
 void  *_(Insert)(int index, void *element);
 
-// Pushes a new element onto the array
+// Inserts an element at index
+void  *_(InsertValue)(int index, const Type *type, void *element);
+
+// Pushes a new object onto the array
 void  *_(Push)(void *element);
 
-// Pushes a new element onto the array
+// Pushes a new value onto the array
+void  *_(PushValue)(const Type *type, void *element);
+
+// Pushes a new object onto the array
 void  *_(Add)(void *element);
 
-// Sets the element at index
+// Pushes a new element onto the array
+void  *_(AddValue)(const Type *type, void *element);
+
+// Sets the object at index
 void  *_(Set)(int index, void *element);
+
+// Sets the value at index
+void  *_(SetValue)(int index, const Type *type, void *element);
 
 // Removes the element at index and returns a pointer to it
 void  *_(RemoveAt)(int index, int get);

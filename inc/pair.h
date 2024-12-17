@@ -5,6 +5,8 @@
 #include <oop.h>
 #include <exception.h>
 
+#include "comparer.h"
+
 #define TYPENAME Pair
 
 OBJECT () NOBASE
@@ -20,8 +22,8 @@ void *_(SetS)(void *element);
 void *_(SetValueF)(const Type *type, void *element);
 void *_(SetValueS)(const Type *type, void *element);
 
-void *CONST (FDeref)();
-void *CONST (SDeref)();
+void     *CONST (FDeref)();
+void     *CONST (SDeref)();
 
 #undef TYPENAME
 #endif
