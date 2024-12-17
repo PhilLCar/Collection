@@ -29,7 +29,9 @@ Pair *_(SetKey)(const void *key, void *value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 Pair *_(SetValue)(void *key, const Type *type, void *value) {
-  Pair *current = IFNULL(Map_At(this, key), List_Add(BASE(0), NEW (Pair) ()));
+  Pair *current = Map_At(this, key);
+  
+  if (!current) List_Add(BASE(0), (current = NEW (Pair) ()));
 
   Pair_SetF(current, key);
   Pair_SetValueS(current, type, value);
@@ -78,12 +80,12 @@ void _(RemoveKey)(const void *key) {
 }
 
 /******************************************************************************/
-Pair *STATIC (at)(List *base, Comparer comparer, const void *key) {
+Pair *STATIC (at)(const List *base, Comparer comparer, const void *key) {
   Pair *head = base->base.first;
   void *next = base->base.second;
 
-  if (!next)                           return NULL;
-  else if (comparer(head->first, key)) return head;
+  if (!next)                            return NULL;
+  else if (!comparer(head->first, key)) return head;
 
   return Map_at(next, comparer, key);
 }

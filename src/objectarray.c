@@ -49,7 +49,7 @@ ObjectArray *_(FillValues)(const Type *type, ...)
   va_start(argptr, type);
 
   while ((current = va_arg(argptr, void*))) {
-    ObjectArray_PushValues(this, type, current);  
+    ObjectArray_PushValue(this, type, current);  
   }
 
   va_end(argptr);
@@ -83,6 +83,21 @@ int _(Resize)(int newSize)
   return success;
 }
 
+/******************************************************************************/
+int _(typecheck)(const Type *type, void *data)
+{
+  int         result   = 1;
+  const Type *dataType = IFNULL(type, gettype(data));
+  
+  if (!sametype(this->type, dataType)) {
+    THROW (NEW (Exception) ("Type mismatch! Expected '%s', got '%s'", this->type->name, dataType->name));
+    
+    result = 0;
+  }
+
+  return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void *_(Insert)(int index, void *data)
 {
@@ -101,24 +116,6 @@ void *_(InsertValue)(int index, const Type *type, void *data)
   }
 
   return element;
-}
-
-// TODO: PushValue, AddValue, InsertValue
-// TODO: Standardize Pop, Remove, etc
-
-/******************************************************************************/
-int _(typecheck)(const Type *type, void *data)
-{
-  int         result   = 1;
-  const Type *dataType = IFNULL(type, gettype(data));
-  
-  if (!sametype(this->type, dataType)) {
-    THROW (NEW (Exception) ("Type mismatch! Expected %s, got %d", this->type->name, dataType->name));
-    
-    result = 0;
-  }
-
-  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +208,7 @@ void *_(RemoveAt)(int index, int get)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void _(Pop)(int get)
+void *_(Pop)(int get)
 {
   void *popped = Array_Pop(BASE(0));
 

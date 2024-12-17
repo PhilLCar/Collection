@@ -15,7 +15,7 @@ MapSet *_(Construct)(const Type *key) {
 ////////////////////////////////////////////////////////////////////////////////
 void _(Destruct)() {
   if (this) {
-    ObjectArray_Destruct(BASE(0));
+    Set_Destruct(BASE(0));
   }
 }
 
@@ -31,23 +31,23 @@ KeyVal *_(SetKey)(const void *key, void *value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *_(SetValue)(void *key, const Type *type, void *value) {
-  Pair *current = IFNULL(MapSet_At(this, key), ObjectArray_Push(BASE(1), NEW (KeyVal) (&this->env)));
+  KeyVal *current = IFNULL(MapSet_At(this, key), ObjectArray_Push(BASE(1), NEW (KeyVal) (&this->env)));
 
-  Pair_SetF(current, key);
-  Pair_SetValueS(current, type, value);
+  Pair_SetF((Pair*)current, key);
+  Pair_SetValueS((Pair*)current, type, value);
 
   return current;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *_(SetKeyValue)(const void *key, const Type *type, void *value) {
-  Pair *current = (Pair*)MapSet_AtKey(this, key);
+  KeyVal *current = MapSet_AtKey(this, key);
 
   if (!current) {
     THROW (NEW (Exception) ("Cannot set key if record doesn't already exist! (try set instead)"));
   }
 
-  Pair_SetValueS(current, type, value);
+  Pair_SetValueS((Pair*)current, type, value);
 
   return current;
 }

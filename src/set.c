@@ -117,7 +117,7 @@ Set *_(Intersect)(Set *other)
     void *object = Array_At(BASE(1), i);
 
     if (!Set_Contains(other, object)) {
-      ObjectArray_Pop(this, 0);
+      ObjectArray_Pop(BASE(0), 0);
     }
   }
 
