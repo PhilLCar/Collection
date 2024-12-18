@@ -5,6 +5,7 @@
 #include <stdarg.h>
 
 // CUT
+#include <diagnostic.h>
 #include <oop.h>
 
 #include "pair.h"

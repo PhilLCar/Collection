@@ -1,6 +1,7 @@
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
+#include <diagnostic.h>
 #include <oop.h>
 #include <exception.h>
 

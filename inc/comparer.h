@@ -1,6 +1,7 @@
 #ifndef COMPARER_H
 #define COMPARER_H
 
+#include <diagnostic.h>
 #include <oop.h>
 #include <exception.h>
 
