@@ -105,8 +105,6 @@ void *_(AddValue)(const Type *type, void *data)
   } else {
     DELETE (data);
   }
-
-  print("%O\n", this);
   
   return result;
 }
