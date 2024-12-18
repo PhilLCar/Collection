@@ -9,6 +9,61 @@
 
 #define COMPREF(N) _default_##N##_comparer
 
+#define CMP(TYPE) int TYPE##_comparer(const void *against, const void *reference)\
+{\
+  return *(TYPE*)reference - *(TYPE*)against;\
+}
+
+#define CMPREF(TYPE) TYPE##_comparer
+
+// Signed integers
+CMP(__int8_t)
+CMP(__int16_t)
+CMP(__int32_t)
+CMP(__int64_t)
+CMP(__int128_t)
+
+Comparer _signed_comparers[6] = {
+  NULL,
+  CMPREF(__int8_t),
+  CMPREF(__int16_t),
+  CMPREF(__int32_t),
+  CMPREF(__int64_t),
+  CMPREF(__int128_t)
+};
+
+// Unsigned integers
+CMP(__uint8_t)
+CMP(__uint16_t)
+CMP(__uint32_t)
+CMP(__uint64_t)
+CMP(__uint128_t)
+
+Comparer _unsigned_comparers[6] = {
+  NULL,
+  CMPREF(__uint8_t),
+  CMPREF(__uint16_t),
+  CMPREF(__uint32_t),
+  CMPREF(__uint64_t),
+  CMPREF(__uint128_t)
+};
+
+// Floats
+//CMP(_Float16)
+CMP(_Float32)
+CMP(_Float64)
+CMP(__float128)
+
+Comparer _float_comparers[6] = {
+  NULL,
+  NULL,
+  NULL,
+  CMPREF(_Float32),
+  CMPREF(_Float64),
+  CMPREF(__float128)
+};
+
+// Default (memory)
 COMPARER(1)
 COMPARER(2)
 COMPARER(3)
@@ -46,9 +101,15 @@ Comparer _default_comparers[17] = {
   COMPREF(16),
 };
 
-int _default_comparer(const void *against, const void *reference) {
+int _default_pointer_comparer(const void *against, const void *reference) {
   // simply compare pointers;
   return reference - against;
+}
+
+int _default_key_comparer(const void **against, const void *reference)
+{
+  // Compare the pointer at root of object/struct with reference
+  return *against - reference;
 }
 
 int _default_object_comparer(const void *against, const void *reference)
@@ -58,21 +119,30 @@ int _default_object_comparer(const void *against, const void *reference)
   return memcmp(against, reference, type->size);
 }
 
-int _default_key_comparer(const void **against, const void *reference)
-{
-  return *against - reference;
-}
-
 Comparer comparer(const Type *type) {
   Comparer comparer = (Comparer)virtual(type, "Comparer");
 
   if (!comparer) {
-    if (isobject(type)) {
-      comparer = _default_object_comparer;
-    } else if (type->size <= (sizeof(_default_comparers) / sizeof(Comparer))) {
-      comparer = _default_comparers[type->size];
-    } else {
-      THROW (NEW (Exception) ("A default comparer is not implemented for native types of size %ld", type->size));
+    switch (type->category) {
+      case TYPES_FLOAT:
+        comparer = _float_comparers[type->size];
+        break;
+      case TYPES_SIGNED:
+        comparer = _signed_comparers[type->size];
+        break;
+      case TYPES_UNSIGNED:
+        comparer = _unsigned_comparers[type->size];
+        break;
+      case TYPES_OBJECT:
+        comparer = _default_object_comparer;
+        break;
+      case TYPES_POINTER:
+        comparer = _default_pointer_comparer;
+        break;
+      case TYPES_DEFAULT:
+        default:
+        comparer = _default_comparers[type->size];
+        break;
     }
   }
 
@@ -80,5 +150,5 @@ Comparer comparer(const Type *type) {
 }
 
 Comparer key_comparer(const Type *type) {
-  return (Comparer)IFNULL(virtual(type, "KeyComparer"), comparer(type));
+  return (Comparer)IFNULL(virtual(type, "KeyComparer"), _default_key_comparer);
 }
