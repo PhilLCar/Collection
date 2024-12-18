@@ -20,8 +20,8 @@ int CONST (ContainsKey)(const void *data);
 
 void *_(Add)(void *data);
 void *_(AddValue)(const Type *type, void *data);
-void *_(Remove)(const void *data, int get);
-void *_(RemoveKey)(const void *data, int get);
+int   _(Remove)(const void *data);
+int   _(RemoveKey)(const void *data);
 Set  *_(Union)(Set *other);
 Set  *_(Intersect)(Set *other);
 

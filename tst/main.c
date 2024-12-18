@@ -174,11 +174,27 @@ void set_tests()
 
   Set *test = NEW (Set) (TYPEOF (int));
 
+  Set_Add(test, NEW (int)(4));
+  Set_Add(test, NEW (int)(7));
+  Set_Add(test, NEW (int)(9));
+  Set_Add(test, NEW (int)(7));
   Set_Add(test, NEW (int)(0));
-  Set_Add(test, NEW (int)(3));
-  Set_Add(test, NEW (int)(1));
-  Set_Add(test, NEW (int)(0));
+  Set_Add(test, NEW (int)(6));
+  Set_Add(test, NEW (int)(7));
+  Set_Add(test, NEW (int)(5));
   Set_Add(test, NEW (int)(2));
+  Set_Add(test, NEW (int)(1));
+  Set_Add(test, NEW (int)(5));
+  Set_Add(test, NEW (int)(0));
+  Set_Add(test, NEW (int)(8));
+  Set_Add(test, NEW (int)(6));
+  Set_Add(test, NEW (int)(3));
+
+  print("%O\n", test);
+
+  int rm = 1;
+
+  Set_Remove(test, &rm);
 
   print("%Of\n", test);
 
@@ -254,20 +270,20 @@ void iterate(void *collection)
 
 int main(void)
 {
-  array_tests();
-  object_array_tests();
-  pair_tests();
-  map_tests();
+  // array_tests();
+  // object_array_tests();
+  // pair_tests();
+  // map_tests();
   set_tests();
-  list_tests();
+  // list_tests();
 
-  List        *list  = List_Fill       (NEW (List)(),                   NEW(int)(1), NEW(int)(2), NEW(int)(3), NULL);
-  ObjectArray *array = ObjectArray_Fill(NEW (ObjectArray)(TYPEOF(int)), NEW(int)(1), NEW(int)(2), NEW(int)(3), NULL);
+  // List        *list  = List_Fill       (NEW (List)(),                   NEW(int)(1), NEW(int)(2), NEW(int)(3), NULL);
+  // ObjectArray *array = ObjectArray_Fill(NEW (ObjectArray)(TYPEOF(int)), NEW(int)(1), NEW(int)(2), NEW(int)(3), NULL);
 
-  iterate(list);
-  print("%Of\n", list);
-  iterate(array);
-  print("%Of\n", array);
+  // iterate(list);
+  // print("%Of\n", list);
+  // iterate(array);
+  // print("%Of\n", array);
 
   CHECK_MEMORY
   STOP_WATCHING

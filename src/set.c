@@ -2,6 +2,12 @@
 
 #define TYPENAME Set
 
+#define MAX(A, B) ({\
+  __typeof__(A) a = A;\
+  __typeof__(B) b = B;\
+  a > b ? a : b;\
+})\
+
 #define MIN(A, B) ({\
   __typeof__(A) a = A;\
   __typeof__(B) b = B;\
@@ -28,41 +34,58 @@ void _(Destruct)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int CONST (contains)(const void *data, Comparer comparer)
+int CONST (contains)(const void *data, Comparer comparer, int *index)
 {
-  int slice = BASE(1)->size >> 1;
-  int index = slice;
+  int size  = BASE(1)->size;
+  int slice = size;
+  
+  *index = 0;
 
-  while (index < BASE(1)->size) {
-    int cmp = comparer(Array_At(BASE(1), index), data);
+  while (slice) {
+    int cmp = comparer(Array_At(BASE(1), *index), data);
 
-    if (cmp > 0) {
-      index += MIN(1, slice);
+    // Half the set of possibilities (when slice is greater than one: round up);
+    slice = (slice + (slice > 1)) >> 1;
+
+     if (cmp > 0) {
+      // Do not exit the search field;
+      slice = MIN(slice, size - *index - 1);
+      // The behaviour of Insert places the new element before the specified index, we always need to move up
+      *index += MAX(1, slice);
     } else if (cmp < 0) {
-      index -= slice;
+      // Do not exit the search field
+      slice = MIN(slice, *index);
+      *index -= slice;
     } else {
-      index = -1;
-      break;
+      return 1;
     }
+  }
 
-    if (!slice) break;
+  return 0;
+}
 
-    slice >>= 1;
+////////////////////////////////////////////////////////////////////////////////
+int CONST (Contains)(const void *data)
+{
+  int index;
+  
+  if (!Set_contains(this, data, this->comparer, &index)) {
+    index = -1;
   }
 
   return index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int CONST (Contains)(const void *data)
-{
-  return Set_contains(this, data, this->comparer);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 int CONST (ContainsKey)(const void *data)
 {
-  return Set_contains(this, data, this->keyComparer);
+  int index;
+  
+  if (!Set_contains(this, data, this->keyComparer, &index)) {
+    index = -1;
+  }
+
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,27 +98,41 @@ void *_(Add)(void *data)
 void *_(AddValue)(const Type *type, void *data)
 {
   void *result = NULL;
-  int   index  = Set_Contains(this, data);
+  int   index;
 
-  if (index >= 0) {
+  if (!Set_contains(this, data, this->comparer, &index)) {
     result = ObjectArray_InsertValue(BASE(0), index, NULL, data);
   } else {
     DELETE (data);
   }
+
+  print("%O\n", this);
   
   return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(Remove)(const void *data, int get)
+int _(Remove)(const void *data)
 {
-  return ObjectArray_RemoveAt(BASE(0), Set_Contains(this, data), get);
+  int index, found;
+
+  if ((found = Set_contains(this, data, this->comparer, &index))) {
+    ObjectArray_RemoveAt(BASE(0), index, 0);
+  }
+
+  return found;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(RemoveKey)(const void *data, int get)
+int _(RemoveKey)(const void *data)
 {
-  return ObjectArray_RemoveAt(BASE(0), Set_ContainsKey(this, data), get);
+  int index, found;
+
+  if ((found = Set_contains(this, data, this->keyComparer, &index))) {
+    ObjectArray_RemoveAt(BASE(0), index, 0);
+  }
+
+  return found;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

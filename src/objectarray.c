@@ -266,43 +266,12 @@ void *CONST (At)(int index)
 
   if ((at = Array_At(BASE(0), index))) {
     memcpy(this->buffer, at, this->type->size);
-
-    at = this->buffer;
   }
 
-  return at;
+  return this->buffer;
 }
 
 /******************************************************************************/
-void *CONST (contains)(const void *reference, Comparer compare)
-{
-  void *found = NULL;
-
-  for (int i = 0; i < BASE(0)->size; i++) {
-    void *against = Array_At(BASE(0), i);
-
-    if (!compare(against, reference)) {
-      found = against;
-      break;
-    }
-  }
-
-  return found;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void *CONST (Contains)(const void *reference)
-{
-  return ObjectArray_contains(this, reference, comparer(this->type));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void *CONST (ContainsKey)(const void *reference)
-{
-  return ObjectArray_contains(this, reference, key_comparer(this->type));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 int CONST (indexOf)(const void *reference, Comparer compare)
 {
   int index = -1;
@@ -317,6 +286,32 @@ int CONST (indexOf)(const void *reference, Comparer compare)
   }
 
   return index;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *CONST (Contains)(const void *reference)
+{
+  void *contains = NULL;
+  int   index    = ObjectArray_indexOf(this, reference, comparer(this->type));
+
+  if (index >= 0) {
+    contains = Array_At(BASE(0), index);
+  }
+
+  return contains;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void *CONST (ContainsKey)(const void *reference)
+{
+  void *contains = NULL;
+  int   index    = ObjectArray_indexOf(this, reference, key_comparer(this->type));
+
+  if (index >= 0) {
+    contains = Array_At(BASE(0), index);
+  }
+
+  return contains;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,8 +332,13 @@ void STATIC(next)(Iterator *iterator)
   ObjectArray_At(iterator->collection, ++*((int*)iterator->env));
 }
 
+/******************************************************************************/
 int  Array_done(Iterator*);
+
+/******************************************************************************/
 void Array_end(Iterator*);
+
+/******************************************************************************/
 int  Array_count(Iterator*);
 
 ////////////////////////////////////////////////////////////////////////////////

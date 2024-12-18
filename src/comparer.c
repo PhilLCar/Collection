@@ -1,5 +1,7 @@
 #include <comparer.h>
 
+// TODO: Make different comparers for signed, unsigned and float types
+
 #define COMPARER(N) int _default_##N##_comparer(const void *against, const void *reference)\
 {\
   return memcmp(reference, against, N);\

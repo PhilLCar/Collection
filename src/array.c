@@ -84,7 +84,10 @@ void *_(Insert)(int index, const void *data)
 {
   void *inserted = NULL;
 
-  if (Array_Index(this, &index) || index == this->size) {
+  // Special case
+  if (index == this->size) {
+    return Array_Push(this, data);
+  } else if (Array_Index(this, &index)) {
     if (this->size >= this->capacity) {
       void *prevloc = NULL;
 
@@ -243,7 +246,7 @@ void *_(Pop)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(PopPtr)()
+void *_(PopDeref)()
 {
   return *(void**)Array_Pop(this);
 }
