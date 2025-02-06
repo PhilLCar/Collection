@@ -19,15 +19,15 @@ void _(Destruct)()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int _(Comparer)(void *reference)
+int _(Comparer)(KeyVal *reference)
 {
-  return this->env->comparer(BASE(0)->first, reference);
+  return this->env->comparer(BASE(0)->first, reference->base.first);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int _(KeyComparer)(void *reference)
+int _(KeyComparer)(KeyVal *reference)
 {
-  return this->env->keyComparer(BASE(0)->first, reference);
+  return this->env->keyComparer(BASE(0)->first, reference->base.first);
 }
 
 #undef TYPENAME

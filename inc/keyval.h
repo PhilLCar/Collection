@@ -18,8 +18,8 @@ OBJECT (KeyValEnvironment *env) INHERIT (Pair)
   KeyValEnvironment *env;
 END_OBJECT(NULL);
 
-int _(Comparer)   (void *reference) VIRTUAL (Comparer);
-int _(KeyComparer)(void *reference) VIRTUAL (KeyComparer);
+int _(Comparer)   (KeyVal *reference) VIRTUAL (Comparer);
+int _(KeyComparer)(KeyVal *reference) VIRTUAL (KeyComparer);
 
 #undef TYPENAME
 #endif
