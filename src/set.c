@@ -89,24 +89,23 @@ int CONST (ContainsKey)(const void *data)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(Add)(void *data)
+int _(Add)(void *data)
 {
   return Set_AddValue(this, NULL, data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *_(AddValue)(const Type *type, void *data)
+int _(AddValue)(const Type *type, void *data)
 {
-  void *result = NULL;
-  int   index;
+  int index = -1;
 
   if (!Set_contains(this, data, this->comparer, &index)) {
-    result = ObjectArray_InsertValue(BASE(0), index, NULL, data);
+    ObjectArray_InsertValue(BASE(0), index, NULL, data);
   } else {
     DELETE (data);
   }
   
-  return result;
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

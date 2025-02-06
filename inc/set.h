@@ -18,8 +18,8 @@ END_OBJECT(TYPEOF (void*));
 int CONST (Contains)(const void *data);
 int CONST (ContainsKey)(const void *data);
 
-void *_(Add)(void *data);
-void *_(AddValue)(const Type *type, void *data);
+int   _(Add)(void *data);
+int   _(AddValue)(const Type *type, void *data);
 int   _(Remove)(const void *data);
 int   _(RemoveKey)(const void *data);
 Set  *_(Union)(Set *other);

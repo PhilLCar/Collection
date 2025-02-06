@@ -31,10 +31,15 @@ KeyVal *_(SetKey)(const void *key, void *value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *_(SetValue)(void *key, const Type *type, void *value) {
-  KeyVal *current = IFNULL(MapSet_At(this, key), ObjectArray_Push(BASE(1), NEW (KeyVal) (&this->env)));
+  KeyVal *current = MapSet_At(this, key);
+  int     present = current != NULL;
+
+  if (!current) current = NEW (KeyVal) (&this->env);
 
   Pair_SetF((Pair*)current, key);
   Pair_SetValueS((Pair*)current, type, value);
+
+  if (!present) Set_Add(BASE(0), current);
 
   return current;
 }
@@ -64,12 +69,16 @@ void _(RemoveKey)(const void *key) {
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *CONST (At)(const void *key) {
-  return Array_At(BASE(2), Set_Contains(BASE(0), key));
+  int index = Set_Contains(BASE(0), key);
+
+  return index >= 0 ? Array_At(BASE(2), index) : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *CONST (AtKey)(const void *key) {
-  return Array_At(BASE(2), Set_ContainsKey(BASE(0), key));
+  int index = Set_ContainsKey(BASE(0), key);
+
+  return index >= 0 ? Array_At(BASE(2), index) : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
