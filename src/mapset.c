@@ -59,24 +59,30 @@ KeyVal *_(SetKeyValue)(const void *key, const Type *type, void *value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(Remove)(const void *key) {
-  Set_Remove(BASE(0), key);
+  const KeyVal keyval = { .base.first = (void*)key };
+
+  Set_Remove(BASE(0), &keyval);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void _(RemoveKey)(const void *key) {
-  Set_RemoveKey(BASE(0), key);
+  const KeyVal keyval = { .base.first = (void*)key };
+
+  Set_RemoveKey(BASE(0), &keyval);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *CONST (At)(const void *key) {
-  int index = Set_Contains(BASE(0), key);
+  const KeyVal keyval = { .base.first = (void*)key };
+  int          index  = Set_Contains(BASE(0), &keyval);
 
   return index >= 0 ? Array_At(BASE(2), index) : NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 KeyVal *CONST (AtKey)(const void *key) {
-  int index = Set_ContainsKey(BASE(0), key);
+  const KeyVal keyval = { .base.first = (void*)key };
+  int          index  = Set_ContainsKey(BASE(0), &keyval);
 
   return index >= 0 ? Array_At(BASE(2), index) : NULL;
 }
