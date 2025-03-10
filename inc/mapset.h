@@ -21,6 +21,8 @@ OBJECT (const Type *key) INHERIT (Set)
   KeyValEnvironment env;
 END_OBJECT(TYPEOF (const char*));
 
+void _(Env)(EnvComparer comparer, EnvComparer keyComparer, void *env);
+
 KeyVal *_(Set)(void *key, void *value);
 KeyVal *_(SetKey)(const void *key, void *value);
 KeyVal *_(SetValue)(void *key, const Type *valueType, void *value);

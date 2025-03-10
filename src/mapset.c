@@ -7,6 +7,7 @@ MapSet *_(Construct)(const Type *key) {
   if (Set_Construct(BASE(0), TYPEOF (KeyVal))) {
     this->env.comparer    = comparer(key);
     this->env.keyComparer = key_comparer(key);
+    this->env.pointer     = NULL;
   }
   
   return this;
@@ -17,6 +18,13 @@ void _(Destruct)() {
   if (this) {
     Set_Destruct(BASE(0));
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void _(Env)(EnvComparer comparer, EnvComparer keyComparer, void *env) {
+  this->env.comparer    = (Comparer)comparer;
+  this->env.keyComparer = (Comparer)keyComparer;
+  this->env.pointer     = env;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
